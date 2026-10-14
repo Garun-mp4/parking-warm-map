@@ -50,7 +50,7 @@ async (page) => {
   await page.getByRole('button', { name: 'Рассчитать карту', exact: true }).click()
   await page.getByRole('button', { name: 'Отменить', exact: true }).click()
   await page.getByRole('button', { name: 'Рассчитать карту', exact: true }).waitFor({ timeout: 120000 })
-  const cancelled = await (await page.request.get('/api/projects/cnrpark-day')).json()
+  const cancelled = await (await page.request.get('http://127.0.0.1:8765/api/projects/cnrpark-day')).json()
   check(cancelled.latest_run.status === 'cancelled', 'Cancellation was not persisted')
   await page.getByRole('button', { name: 'Новое видео', exact: true }).click()
   await page.getByLabel('Название', { exact: true }).fill('QA · проверка загрузки')

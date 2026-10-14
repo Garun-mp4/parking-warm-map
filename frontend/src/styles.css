@@ -1750,3 +1750,23 @@ footer > span:last-child {
     font-size: 10px;
   }
 }
+@media (max-width: 960px), (any-pointer: coarse) {
+  .button.small,
+  .segmented button,
+  .playback > select,
+  .text-button {
+    min-height: 44px;
+  }
+  .playback > select {
+    min-width: 44px;
+  }
+  .search-input {
+    min-height: 44px !important;
+  }
+  .icon-button,
+  .alert .icon-button {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
+  }
+}
