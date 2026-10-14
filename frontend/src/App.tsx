@@ -44,6 +44,8 @@ import {
 } from "./utils";
 import UploadDialog from "./UploadDialog";
 import HeatmapLayer from "./HeatmapLayer";
+import PeriodControls from "./PeriodControls";
+import TimeMatrix from "./TimeMatrix";
 import {
   heatGradient,
   heatmapVersion,
@@ -61,14 +63,18 @@ const initialSettings: Settings = {
 };
 const stateLabel = (state: number | undefined) =>
   state === 1 ? "Занято" : state === 0 ? "Свободно" : "Не определено";
-const stateClass = (state: number | undefined) =>
-  state === 1 ? "occupied" : state === 0 ? "free" : "unknown";
 
 export default function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [project, setProject] = useState<Project | null>(null);
+  const [openingProject, setOpeningProject] = useState<string | null>(null);
   const [result, setResult] = useState<Analysis | null>(null);
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [summaryFailure, setSummaryFailure] = useState<{
+    key: string;
+    message: string;
+  } | null>(null);
+  const [summaryAttempt, setSummaryAttempt] = useState(0);
   const [view, setView] = useState<"analysis" | "editor" | "method">(
     "analysis",
   );
@@ -84,11 +90,17 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [range, setRange] = useState<[number, number]>([0, 1]);
+  const summaryKey = `${result?.run_id}:${range[0]}:${range[1]}:${summaryAttempt}`;
+  const summaryError =
+    summaryFailure?.key === summaryKey ? summaryFailure.message : "";
   const [slots, setSlots] = useState<Slot[]>([]);
   const [draft, setDraft] = useState<Point[]>([]);
   const [drawing, setDrawing] = useState(false);
   const [history, setHistory] = useState<Slot[][]>([]);
-  const [dirty, setDirty] = useState(false);
+  const dirty = useMemo(
+    () => JSON.stringify(slots) !== JSON.stringify(project?.slots || []),
+    [slots, project?.slots],
+  );
   const [filter, setFilter] = useState("");
   const [validation, setValidation] = useState<{
     selected_model: string;
@@ -99,6 +111,9 @@ export default function App() {
   const svg = useRef<SVGSVGElement>(null);
   const dragging = useRef<{ slot: string; point: number } | null>(null);
   const loadedRun = useRef<string | null>(null);
+  const requestedProject = useRef<string | null>(null);
+  const displayedProject = useRef<string | null>(null);
+  const projectGeneration = useRef(0);
 
   const showError = (reason: unknown) =>
     setError(
@@ -107,30 +122,61 @@ export default function App() {
         : "Не удалось выполнить действие.",
     );
   const loadProject = useCallback(async (id: string, reset = false) => {
-    const next = await request<Project>(`/api/projects/${id}`);
-    setProject(next);
     if (reset) {
-      loadedRun.current = null;
-      setResult(null);
-      setSummary(null);
-      setSeconds(0);
-      setSelected(null);
-      setSlots(next.slots);
-      setDirty(false);
-      setHistory([]);
-      setDraft([]);
-      setDrawing(false);
-      setRange([0, next.metadata.source_duration_seconds]);
-      setSettings(initialSettings);
-      localStorage.setItem("parking.project", id);
-    }
-    if (next.completed_run_id && loadedRun.current !== next.completed_run_id) {
-      const data = await request<Analysis>(
-        `/api/runs/${next.completed_run_id}/result`,
-      );
-      setRange([0, data.source_duration_seconds]);
-      setResult(data);
-      loadedRun.current = data.run_id;
+      requestedProject.current = id;
+      projectGeneration.current++;
+      setOpeningProject(id);
+    } else if (requestedProject.current !== id) return;
+    const generation = projectGeneration.current;
+    try {
+      const next = await request<Project>(`/api/projects/${id}`);
+      if (generation !== projectGeneration.current) return;
+      let data: Analysis | null = null;
+      let resultError: unknown;
+      if (
+        next.completed_run_id &&
+        (reset || loadedRun.current !== next.completed_run_id)
+      ) {
+        try {
+          data = await request<Analysis>(
+            `/api/runs/${next.completed_run_id}/result`,
+          );
+        } catch (reason) {
+          // Keep the project editable even when an old result file is missing.
+          resultError = reason;
+        }
+      }
+      if (generation !== projectGeneration.current) return;
+      setProject(next);
+      displayedProject.current = id;
+      if (reset) {
+        loadedRun.current = null;
+        setResult(null);
+        setSummary(null);
+        setSeconds(0);
+        setSelected(null);
+        setSlots(next.slots);
+        setHistory([]);
+        setDraft([]);
+        setDrawing(false);
+        setRange([0, next.metadata.source_duration_seconds]);
+        setSettings(next.latest_run?.settings || initialSettings);
+        localStorage.setItem("parking.project", id);
+      }
+      if (data) {
+        setRange([0, data.source_duration_seconds]);
+        setResult(data);
+        loadedRun.current = data.run_id;
+      }
+      if (resultError) throw resultError;
+    } catch (reason) {
+      if (generation === projectGeneration.current) {
+        requestedProject.current = displayedProject.current;
+        throw reason;
+      }
+    } finally {
+      if (reset && generation === projectGeneration.current)
+        setOpeningProject(null);
     }
   }, []);
 
@@ -182,12 +228,27 @@ export default function App() {
       `/api/runs/${result.run_id}/summary?start=${range[0]}&end=${range[1]}`,
       { signal: controller.signal },
     )
-      .then(setSummary)
+      .then((data) => {
+        if (!controller.signal.aborted) setSummary(data);
+      })
       .catch((reason) => {
-        if (reason.name !== "AbortError") showError(reason);
+        if (!controller.signal.aborted)
+          setSummaryFailure({
+            key: summaryKey,
+            message: reason.message || "Не удалось получить статистику.",
+          });
       });
     return () => controller.abort();
-  }, [result, range]);
+  }, [result, range, summaryAttempt, summaryKey]);
+  useEffect(() => {
+    if (!dirty && !draft.length) return;
+    const protectDraft = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", protectDraft);
+    return () => window.removeEventListener("beforeunload", protectDraft);
+  }, [dirty, draft.length]);
   useEffect(() => {
     void fetch("/api/validation")
       .then((response) => (response.ok ? response.json() : null))
@@ -208,7 +269,6 @@ export default function App() {
   const selectedIndex = displayedSlots.findIndex(
     (slot) => slot.id === selected,
   );
-  const selectedSummary = summary?.slots.find((slot) => slot.id === selected);
   const heatSummary =
     summary &&
     summary.run_id === result?.run_id &&
@@ -216,6 +276,9 @@ export default function App() {
     summary.end === range[1]
       ? summary
       : null;
+  const selectedSummary = heatSummary?.slots.find(
+    (slot) => slot.id === selected,
+  );
   const heatUrl =
     heatSummary && result
       ? `/api/runs/${result.run_id}/heatmap.png?start=${heatSummary.start}&end=${heatSummary.end}&palette=${palette}&v=${heatmapVersion}`
@@ -225,16 +288,16 @@ export default function App() {
   const sparse = meta?.kind === "sampled_timelapse";
   const visibleRows = useMemo(
     () =>
-      (summary?.slots || []).filter((slot) =>
+      (heatSummary?.slots || []).filter((slot) =>
         `${slot.name} ${slot.id}`.toLowerCase().includes(filter.toLowerCase()),
       ),
-    [summary, filter],
+    [heatSummary, filter],
   );
 
-  function seek(time: number) {
+  const seek = useCallback((time: number) => {
     if (video.current) video.current.currentTime = time;
     setSeconds(time);
-  }
+  }, []);
   async function togglePlay() {
     if (!video.current) return;
     if (video.current.paused) {
@@ -277,7 +340,6 @@ export default function App() {
         },
       );
       setProject(next);
-      setDirty(false);
       setHistory([]);
       setNotice("Разметка сохранена. Запустите анализ для этой версии мест.");
     } catch (reason) {
@@ -287,18 +349,12 @@ export default function App() {
     }
   }
   function changeView(next: typeof view) {
-    if (
-      dirty &&
-      next !== "editor" &&
-      !window.confirm("Несохранённая разметка останется в редакторе. Перейти?")
-    )
-      return;
     video.current?.pause();
     setView(next);
   }
   async function chooseProject(id: string) {
     if (
-      dirty &&
+      (dirty || draft.length > 0) &&
       !window.confirm(
         "Переключиться и отменить несохранённые изменения разметки?",
       )
@@ -371,17 +427,18 @@ export default function App() {
     setSelected(id);
     setDraft([]);
     setDrawing(false);
-    setDirty(true);
   }
   function removeSlot() {
     remember();
     setSlots(slots.filter((slot) => slot.id !== selected));
     setSelected(null);
-    setDirty(true);
   }
 
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        Перейти к содержимому
+      </a>
       <header className="top-nav">
         <a className="wordmark" href="/" aria-label="Парковка — главная">
           <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
@@ -400,6 +457,7 @@ export default function App() {
             <button
               key={tab}
               className={view === tab ? "nav-tab selected" : "nav-tab"}
+              aria-current={view === tab ? "page" : undefined}
               onClick={() => changeView(tab)}
               disabled={(!project && tab === "editor") || busy === "layout"}
             >
@@ -409,13 +467,33 @@ export default function App() {
         </nav>
         <button
           className="button primary nav-upload"
-          onClick={() => setUpload(true)}
+          onClick={() => {
+            if (
+              (dirty || draft.length) &&
+              !window.confirm(
+                "После загрузки нового видео несохранённая разметка будет отменена. Продолжить?",
+              )
+            )
+              return;
+            setUpload(true);
+          }}
         >
           <Plus size={18} />
           Новое видео
         </button>
       </header>
-      <main>
+      <main id="main-content" tabIndex={-1}>
+        {(dirty || draft.length > 0) && view !== "editor" && (
+          <div className="draft-notice" role="status">
+            <span>В редакторе есть несохранённая разметка.</span>
+            <button
+              className="text-button"
+              onClick={() => changeView("editor")}
+            >
+              Вернуться к разметке <ArrowRight size={16} />
+            </button>
+          </div>
+        )}
         {error && (
           <div className="alert error" role="alert">
             <span>{error}</span>
@@ -593,7 +671,7 @@ export default function App() {
                     : "Доля занятого времени среди известных интервалов."}
                 </p>
               </div>
-              <div className="project-picker">
+              <div className="project-picker" aria-busy={!!openingProject}>
                 <label htmlFor="project">Исследование</label>
                 <div className="select-wrap">
                   <select
@@ -609,6 +687,9 @@ export default function App() {
                   </select>
                   <ChevronDown size={16} />
                 </div>
+                {openingProject && (
+                  <span role="status">Открываем исследование…</span>
+                )}
                 <span>{meta?.source_name}</span>
               </div>
             </section>
@@ -639,7 +720,6 @@ export default function App() {
                           onClick={() => {
                             setSlots(history[history.length - 1]);
                             setHistory(history.slice(0, -1));
-                            setDirty(true);
                           }}
                         >
                           <RotateCcw size={17} />
@@ -662,6 +742,7 @@ export default function App() {
                             <button
                               key={tab}
                               className={mode === tab ? "selected" : ""}
+                              aria-pressed={mode === tab}
                               onClick={() => setMode(tab)}
                             >
                               {["Видео", "Занятость", "Тепловая карта"][i]}
@@ -832,7 +913,6 @@ export default function App() {
                                 : slot,
                             ),
                           );
-                          setDirty(true);
                         }}
                         onPointerUp={() => {
                           dragging.current = null;
@@ -1097,6 +1177,15 @@ export default function App() {
                     )}
                   </>
                 )}
+                {view === "analysis" && result && (
+                  <PeriodControls
+                    range={range}
+                    duration={result.source_duration_seconds}
+                    captureStart={meta?.capture_start}
+                    sparse={sparse}
+                    onChange={setRange}
+                  />
+                )}
               </div>
               <aside className="inspector">
                 <div className="observation-panel">
@@ -1144,7 +1233,6 @@ export default function App() {
                                 slot.id === selected ? { ...slot, name } : slot,
                               ),
                             );
-                            setDirty(true);
                           }}
                           maxLength={50}
                         />
@@ -1401,7 +1489,7 @@ export default function App() {
                     <div className="export-actions">
                       <button
                         className="button secondary small"
-                        disabled={!!busy}
+                        disabled={!!busy || !heatSummary}
                         onClick={() => void exportFile("png")}
                       >
                         <ArrowDownToLine size={16} />
@@ -1409,7 +1497,7 @@ export default function App() {
                       </button>
                       <button
                         className="button secondary small"
-                        disabled={!!busy}
+                        disabled={!!busy || !heatSummary}
                         onClick={() => void exportFile("csv")}
                       >
                         <ArrowDownToLine size={16} />
@@ -1417,7 +1505,7 @@ export default function App() {
                       </button>
                       <button
                         className="button secondary small"
-                        disabled={!!busy}
+                        disabled={!!busy || !heatSummary}
                         onClick={() => void exportFile("mp4")}
                       >
                         <ArrowDownToLine size={16} />
@@ -1425,325 +1513,235 @@ export default function App() {
                       </button>
                     </div>
                   </section>
-                  <div className="summary-strip">
-                    <div>
-                      <span>Средняя занятость</span>
-                      <strong>{percent(summary.occupancy)}</strong>
-                      <small>среди определённых состояний</small>
-                    </div>
-                    <div>
-                      <span>Пик загрузки</span>
-                      <strong>
-                        {summary.peak_occupied}
-                        <small> / {result.slots.length}</small>
-                      </strong>
-                      <small>одновременно занятых мест</small>
-                    </div>
-                    <div>
-                      <span>Покрытие наблюдения</span>
-                      <strong>{percent(summary.coverage)}</strong>
-                      <small>остальное — неопределённость</small>
-                    </div>
-                    <div>
-                      <span>Смены состояния</span>
-                      <strong>{summary.changes}</strong>
-                      <small>между исходными кадрами</small>
-                    </div>
-                  </div>
-                  <section className="range-section">
-                    <div>
-                      <h3>Интервал исследования</h3>
-                      <button
-                        className="text-button"
-                        onClick={() =>
-                          setRange([0, result.source_duration_seconds])
-                        }
-                      >
-                        Весь день <RotateCcw size={14} />
-                      </button>
-                    </div>
-                    <div className="range-controls">
-                      <label>
-                        С {clock(range[0], meta!.capture_start)}
-                        <input
-                          aria-label="Начало интервала"
-                          type="range"
-                          min={0}
-                          max={result.source_duration_seconds}
-                          step={sparse ? 60 : 1}
-                          value={range[0]}
-                          onChange={(event) =>
-                            setRange([
-                              Math.min(
-                                Number(event.target.value),
-                                range[1] - 1,
-                              ),
-                              range[1],
-                            ])
-                          }
-                        />
-                      </label>
-                      <label>
-                        До {clock(range[1], meta!.capture_start)}
-                        <input
-                          aria-label="Конец интервала"
-                          type="range"
-                          min={0}
-                          max={result.source_duration_seconds}
-                          step={sparse ? 60 : 1}
-                          value={range[1]}
-                          onChange={(event) =>
-                            setRange([
-                              range[0],
-                              Math.max(
-                                Number(event.target.value),
-                                range[0] + 1,
-                              ),
-                            ])
-                          }
-                        />
-                      </label>
-                    </div>
-                  </section>
-                  <section className="chart-section">
-                    <div className="section-title">
-                      <h3>Как менялась загрузка</h3>
-                      <span>
-                        <i className="dot ink" />
-                        Занятые места
-                      </span>
-                    </div>
-                    <div className="chart">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart
-                          data={summary.timeline}
-                          margin={{ top: 16, right: 14, bottom: 0, left: -18 }}
-                        >
-                          <CartesianGrid vertical={false} stroke="#e6e6e6" />
-                          <XAxis
-                            dataKey="time"
-                            tickFormatter={(time) =>
-                              clock(Number(time), meta!.capture_start)
-                            }
-                            tickLine={false}
-                            axisLine={false}
-                            minTickGap={32}
-                            tick={{ fill: "#000", fontSize: 12 }}
-                          />
-                          <YAxis
-                            allowDecimals={false}
-                            domain={[0, result.slots.length]}
-                            tickLine={false}
-                            axisLine={false}
-                            tick={{ fill: "#000", fontSize: 12 }}
-                          />
-                          <Tooltip
-                            labelFormatter={(time) =>
-                              clock(Number(time), meta!.capture_start)
-                            }
-                            formatter={(value) => [value, "Занято мест"]}
-                            contentStyle={{
-                              border: "1px solid #e6e6e6",
-                              borderRadius: 8,
-                              color: "#000",
-                            }}
-                          />
-                          <Area
-                            type="stepAfter"
-                            dataKey="occupied"
-                            stroke="#000000"
-                            strokeWidth={2}
-                            fill="#f28b3c"
-                            fillOpacity={0.48}
-                            isAnimationActive={false}
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </section>
-                  <section className="matrix-section">
-                    <div className="section-title">
-                      <div>
-                        <h3>У каждого места — своя история</h3>
+                  <div className="summary-region" aria-busy={!heatSummary}>
+                    {!heatSummary && (
+                      <div className="summary-status" role="status">
                         <p>
-                          Строка — место. Столбец — реальный момент наблюдения.
-                          Нажмите на ячейку, чтобы открыть кадр.
+                          {summaryError ||
+                            "Обновляем карту и статистику выбранного периода…"}
                         </p>
-                      </div>
-                      <div className="matrix-key">
-                        <span>Свободно</span>
-                        <i className="dot free" />
-                        <i className="dot occupied" />
-                        <span>Занято</span>
-                      </div>
-                    </div>
-                    <div className="matrix-scroll">
-                      <div
-                        className="matrix"
-                        style={{
-                          gridTemplateColumns: `80px repeat(${result.samples.length}, minmax(20px, 1fr))`,
-                        }}
-                      >
-                        <span className="matrix-corner">Место</span>
-                        {result.samples.map((s, i) => (
-                          <span className="matrix-time" key={i}>
-                            {i % 3 === 0
-                              ? clock(s.source_seconds, meta!.capture_start)
-                              : ""}
-                          </span>
-                        ))}
-                        {result.slots.map((slot, col) => (
-                          <div
-                            className={`matrix-row ${selected === slot.id ? "selected" : ""}`}
-                            key={slot.id}
+                        {summaryError && (
+                          <button
+                            className="button secondary small"
+                            onClick={() =>
+                              setSummaryAttempt((attempt) => attempt + 1)
+                            }
                           >
-                            <button
-                              className="matrix-label"
-                              onClick={() => setSelected(slot.id)}
+                            Повторить загрузку статистики
+                          </button>
+                        )}
+                      </div>
+                    )}
+                    <div
+                      className={!heatSummary ? "summary-pending" : undefined}
+                      aria-hidden={!heatSummary}
+                      inert={!heatSummary}
+                    >
+                      <div className="summary-strip">
+                        <div>
+                          <span>Средняя занятость</span>
+                          <strong>{percent(summary.occupancy)}</strong>
+                          <small>среди определённых состояний</small>
+                        </div>
+                        <div>
+                          <span>Пик загрузки</span>
+                          <strong>
+                            {summary.peak_occupied}
+                            <small> / {result.slots.length}</small>
+                          </strong>
+                          <small>одновременно занятых мест</small>
+                        </div>
+                        <div>
+                          <span>Покрытие наблюдения</span>
+                          <strong>{percent(summary.coverage)}</strong>
+                          <small>остальное — неопределённость</small>
+                        </div>
+                        <div>
+                          <span>Смены состояния</span>
+                          <strong>{summary.changes}</strong>
+                          <small>между исходными кадрами</small>
+                        </div>
+                      </div>
+                      <section className="chart-section">
+                        <div className="section-title">
+                          <h3>Как менялась загрузка</h3>
+                          <span>
+                            <i className="dot ink" />
+                            Занятые места
+                          </span>
+                        </div>
+                        <div className="chart">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart
+                              data={summary.timeline}
+                              margin={{
+                                top: 16,
+                                right: 14,
+                                bottom: 0,
+                                left: -18,
+                              }}
                             >
-                              {slot.id}
-                            </button>
-                            {result.samples.map((s, i) => (
-                              <button
-                                key={i}
-                                className={`matrix-cell ${stateClass(s.states[col])} ${i === index ? "current" : ""}`}
-                                data-cell={`${col}-${i}`}
-                                tabIndex={
-                                  (selected === slot.id ||
-                                    (!selected && col === 0)) &&
-                                  i === index
-                                    ? 0
-                                    : -1
+                              <CartesianGrid
+                                vertical={false}
+                                stroke="#e6e6e6"
+                              />
+                              <XAxis
+                                dataKey="time"
+                                tickFormatter={(time) =>
+                                  clock(Number(time), meta!.capture_start)
                                 }
-                                onKeyDown={(event) => {
-                                  const delta: Record<
-                                    string,
-                                    [number, number]
-                                  > = {
-                                    ArrowLeft: [0, -1],
-                                    ArrowRight: [0, 1],
-                                    ArrowUp: [-1, 0],
-                                    ArrowDown: [1, 0],
-                                  };
-                                  if (!delta[event.key]) return;
-                                  event.preventDefault();
-                                  const [dc, di] = delta[event.key];
-                                  const nextRow = Math.max(
-                                    0,
-                                    Math.min(result.slots.length - 1, col + dc),
-                                  );
-                                  const nextSample = Math.max(
-                                    0,
-                                    Math.min(result.samples.length - 1, i + di),
-                                  );
-                                  setSelected(result.slots[nextRow].id);
-                                  seek(
-                                    result.samples[nextSample].video_seconds,
-                                  );
-                                  event.currentTarget
-                                    .closest(".matrix")
-                                    ?.querySelector<HTMLButtonElement>(
-                                      `[data-cell="${nextRow}-${nextSample}"]`,
-                                    )
-                                    ?.focus();
-                                }}
-                                aria-label={`Место ${slot.id}, ${clock(s.source_seconds, meta!.capture_start)}, ${stateLabel(s.states[col])}`}
-                                title={`${clock(s.source_seconds, meta!.capture_start)} · ${stateLabel(s.states[col])}`}
-                                onClick={() => {
-                                  setSelected(slot.id);
-                                  seek(s.video_seconds);
+                                tickLine={false}
+                                axisLine={false}
+                                minTickGap={32}
+                                tick={{ fill: "#000", fontSize: 12 }}
+                              />
+                              <YAxis
+                                allowDecimals={false}
+                                domain={[0, result.slots.length]}
+                                tickLine={false}
+                                axisLine={false}
+                                tick={{ fill: "#000", fontSize: 12 }}
+                              />
+                              <Tooltip
+                                labelFormatter={(time) =>
+                                  clock(Number(time), meta!.capture_start)
+                                }
+                                formatter={(value) => [value, "Занято мест"]}
+                                contentStyle={{
+                                  border: "1px solid #e6e6e6",
+                                  borderRadius: 8,
+                                  color: "#000",
                                 }}
                               />
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </section>
-                  <section className="table-section">
-                    <div className="section-title">
-                      <h3>По каждому месту</h3>
-                      <input
-                        className="search-input"
-                        aria-label="Поиск места"
-                        placeholder="Найти место…"
-                        value={filter}
-                        onChange={(event) => setFilter(event.target.value)}
+                              <Area
+                                type="stepAfter"
+                                dataKey="occupied"
+                                stroke="#000000"
+                                strokeWidth={2}
+                                fill="#f28b3c"
+                                fillOpacity={0.48}
+                                isAnimationActive={false}
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      </section>
+                      <TimeMatrix
+                        key={result.run_id}
+                        result={result}
+                        index={index}
+                        selected={selected}
+                        captureStart={meta?.capture_start}
+                        onSelect={setSelected}
+                        onSeek={seek}
                       />
-                    </div>
-                    <div className="table-scroll">
-                      <table>
-                        <thead>
-                          <tr>
-                            <th>Место</th>
-                            <th>Занятость</th>
-                            <th>Наблюдение</th>
-                            <th>Время занятости*</th>
-                            <th>Смены</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {visibleRows.map((slot) => (
-                            <tr
-                              key={slot.id}
-                              className={selected === slot.id ? "selected" : ""}
-                            >
-                              <td>
-                                <button
-                                  className="text-button"
-                                  onClick={() => setSelected(slot.id)}
+                      <section className="table-section">
+                        <div className="section-title">
+                          <h3>По каждому месту</h3>
+                          <input
+                            className="search-input"
+                            aria-label="Поиск места"
+                            placeholder="Найти место…"
+                            value={filter}
+                            onChange={(event) => setFilter(event.target.value)}
+                          />
+                        </div>
+                        <div className="table-scroll">
+                          <table>
+                            <thead>
+                              <tr>
+                                <th>Место</th>
+                                <th>Занятость</th>
+                                <th>Наблюдение</th>
+                                <th>Время занятости*</th>
+                                <th>Смены</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {visibleRows.map((slot) => (
+                                <tr
+                                  key={slot.id}
+                                  className={
+                                    selected === slot.id ? "selected" : ""
+                                  }
                                 >
-                                  {slot.name}
-                                </button>
-                              </td>
-                              <td>
-                                <span className="occupancy-cell">
-                                  <i
-                                    style={{
-                                      background: heatColor(
-                                        slot.occupancy,
-                                        palette,
-                                      ),
-                                    }}
-                                  />
-                                  {percent(slot.occupancy)}
-                                </span>
-                              </td>
-                              <td>{percent(slot.coverage)}</td>
-                              <td>{duration(slot.occupied_seconds)}</td>
-                              <td>{slot.changes}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      {visibleRows.length === 0 && (
-                        <p className="table-empty">
-                          Такого места нет. Измените поиск.
+                                  <td>
+                                    <button
+                                      className="text-button"
+                                      onClick={() => setSelected(slot.id)}
+                                    >
+                                      {slot.name}
+                                    </button>
+                                  </td>
+                                  <td>
+                                    <span className="occupancy-cell">
+                                      <i
+                                        style={{
+                                          background: heatColor(
+                                            slot.occupancy,
+                                            palette,
+                                          ),
+                                        }}
+                                      />
+                                      {percent(slot.occupancy)}
+                                    </span>
+                                  </td>
+                                  <td>{percent(slot.coverage)}</td>
+                                  <td>{duration(slot.occupied_seconds)}</td>
+                                  <td>{slot.changes}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          {visibleRows.length === 0 && (
+                            <p className="table-empty">
+                              Такого места нет. Измените поиск.
+                            </p>
+                          )}
+                        </div>
+                        <p className="table-footnote">
+                          *{" "}
+                          {sparse
+                            ? "Оценка между редкими снимками, а не точная длительность парковки."
+                            : "Наблюдаемая занятость в пределах записи, а не полная длительность визита."}{" "}
+                          Неопределённые интервалы исключены.
                         </p>
-                      )}
-                    </div>
-                    <p className="table-footnote">
-                      *{" "}
-                      {sparse
-                        ? "Оценка между редкими снимками, а не точная длительность парковки."
-                        : "Наблюдаемая занятость в пределах записи, а не полная длительность визита."}{" "}
-                      Неопределённые интервалы исключены.
-                    </p>
-                  </section>
-                  <div className="source-note">
-                    <CircleHelp size={23} />
-                    <div>
-                      <h3>У данных есть границы</h3>
-                      <p>{result.notice}</p>
-                      <button
-                        className="text-button"
-                        onClick={() => changeView("method")}
-                      >
-                        Как устроен расчёт <ArrowRight size={16} />
-                      </button>
+                      </section>
+                      <div className="source-note">
+                        <CircleHelp size={23} />
+                        <div>
+                          <h3>У данных есть границы</h3>
+                          <p>{result.notice}</p>
+                          <button
+                            className="text-button"
+                            onClick={() => changeView("method")}
+                          >
+                            Как устроен расчёт <ArrowRight size={16} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </>
+              ) : result ? (
+                <section
+                  className="summary-status initial-summary"
+                  role="status"
+                >
+                  <p>
+                    {summaryError || "Получаем статистику выбранного периода…"}
+                  </p>
+                  {summaryError && (
+                    <button
+                      className="button secondary small"
+                      onClick={() =>
+                        setSummaryAttempt((attempt) => attempt + 1)
+                      }
+                    >
+                      Повторить загрузку статистики
+                    </button>
+                  )}
+                </section>
               ) : (
                 <section className="before-analysis">
                   <div>

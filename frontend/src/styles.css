@@ -747,6 +747,86 @@ main {
 .range-section h3 {
   font-size: 14px;
 }
+.map-range {
+  padding: 20px 0;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+}
+.map-range p {
+  font-size: 12px;
+  margin-top: 16px;
+  max-width: 75ch;
+}
+.map-range .text-button,
+.matrix-pagination button {
+  min-height: 44px;
+}
+.summary-region {
+  position: relative;
+}
+.summary-pending {
+  visibility: hidden;
+}
+.summary-status {
+  position: absolute;
+  inset: 24px 0 auto;
+  padding: 24px;
+  background: var(--soft);
+  border-radius: 12px;
+}
+.summary-status p {
+  margin-bottom: 12px;
+}
+.initial-summary {
+  position: static;
+  margin-top: 32px;
+}
+.draft-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  background: var(--cream);
+  border-radius: 12px;
+  font-size: 14px;
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 12px 20px;
+  background: #000;
+  color: #fff;
+  border-radius: 8px;
+  transform: translateY(-160%);
+}
+.skip-link:focus {
+  transform: translateY(0);
+}
+.skip-link:not(:focus) {
+  clip-path: inset(50%);
+}
+.matrix-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.matrix-pagination > div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.matrix-pagination .icon-button {
+  min-width: 44px;
+}
 .range-controls {
   display: grid;
   grid-template-columns: 1fr 1fr;

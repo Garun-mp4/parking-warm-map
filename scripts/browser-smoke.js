@@ -43,7 +43,7 @@ async (page) => {
   for (const [x,y] of [[.3,.47],[.4,.47],[.4,.55],[.3,.55]]) await page.mouse.click(box.x + box.width*x, box.y + box.height*y)
   await page.getByRole('button', { name: 'Замкнуть место', exact: true }).click()
   await page.getByLabel('Отменить изменение').click()
-  await page.getByRole('button', { name: 'Сохранить разметку', exact: true }).click()
+  check(await page.getByRole('button', { name: 'Изменения сохранены', exact: true }).isDisabled(), 'Undo should return to the saved layout without another save')
   await page.getByRole('button', { name: 'Изменения сохранены', exact: true }).waitFor()
   await page.getByRole('button', { name: 'Обзор', exact: true }).click()
   await page.getByLabel('Модель', { exact: true }).selectOption('yolo11s')
