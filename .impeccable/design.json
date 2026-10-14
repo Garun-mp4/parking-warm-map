@@ -1,0 +1,625 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T16:35:19.066504+00:00",
+  "title": "Design System: Figma editorial shell — parking analysis extension",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Primary",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "on-primary": {
+        "role": "neutral",
+        "displayName": "On Primary",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "canvas": {
+        "role": "neutral",
+        "displayName": "Canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "inverse-canvas": {
+        "role": "neutral",
+        "displayName": "Inverse Canvas",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "inverse-ink": {
+        "role": "neutral",
+        "displayName": "Inverse Ink",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "on-inverse-soft": {
+        "role": "neutral",
+        "displayName": "On Inverse Soft",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "hairline-soft": {
+        "role": "neutral",
+        "displayName": "Hairline Soft",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "surface-soft": {
+        "role": "neutral",
+        "displayName": "Surface Soft",
+        "tonalRamp": [
+          "oklch(15% 0.0026 106.45)",
+          "oklch(26% 0.0026 106.45)",
+          "oklch(38% 0.0026 106.45)",
+          "oklch(49% 0.0026 106.45)",
+          "oklch(61% 0.0026 106.45)",
+          "oklch(72% 0.0026 106.45)",
+          "oklch(84% 0.0026 106.45)",
+          "oklch(95% 0.0026 106.45)"
+        ]
+      },
+      "block-lime": {
+        "role": "secondary",
+        "displayName": "Block Lime",
+        "tonalRamp": [
+          "oklch(15% 0.0818 121.37)",
+          "oklch(26% 0.0818 121.37)",
+          "oklch(38% 0.0818 121.37)",
+          "oklch(49% 0.0818 121.37)",
+          "oklch(61% 0.0818 121.37)",
+          "oklch(72% 0.0818 121.37)",
+          "oklch(84% 0.0818 121.37)",
+          "oklch(95% 0.0818 121.37)"
+        ]
+      },
+      "block-lilac": {
+        "role": "secondary",
+        "displayName": "Block Lilac",
+        "tonalRamp": [
+          "oklch(15% 0.0971 298.35)",
+          "oklch(26% 0.0971 298.35)",
+          "oklch(38% 0.0971 298.35)",
+          "oklch(49% 0.0971 298.35)",
+          "oklch(61% 0.0971 298.35)",
+          "oklch(72% 0.0971 298.35)",
+          "oklch(84% 0.0971 298.35)",
+          "oklch(95% 0.0971 298.35)"
+        ]
+      },
+      "block-cream": {
+        "role": "secondary",
+        "displayName": "Block Cream",
+        "tonalRamp": [
+          "oklch(15% 0.0303 90.33)",
+          "oklch(26% 0.0303 90.33)",
+          "oklch(38% 0.0303 90.33)",
+          "oklch(49% 0.0303 90.33)",
+          "oklch(61% 0.0303 90.33)",
+          "oklch(72% 0.0303 90.33)",
+          "oklch(84% 0.0303 90.33)",
+          "oklch(95% 0.0303 90.33)"
+        ]
+      },
+      "block-pink": {
+        "role": "secondary",
+        "displayName": "Block Pink",
+        "tonalRamp": [
+          "oklch(15% 0.0302 17.73)",
+          "oklch(26% 0.0302 17.73)",
+          "oklch(38% 0.0302 17.73)",
+          "oklch(49% 0.0302 17.73)",
+          "oklch(61% 0.0302 17.73)",
+          "oklch(72% 0.0302 17.73)",
+          "oklch(84% 0.0302 17.73)",
+          "oklch(95% 0.0302 17.73)"
+        ]
+      },
+      "block-mint": {
+        "role": "secondary",
+        "displayName": "Block Mint",
+        "tonalRamp": [
+          "oklch(15% 0.0463 150.09)",
+          "oklch(26% 0.0463 150.09)",
+          "oklch(38% 0.0463 150.09)",
+          "oklch(49% 0.0463 150.09)",
+          "oklch(61% 0.0463 150.09)",
+          "oklch(72% 0.0463 150.09)",
+          "oklch(84% 0.0463 150.09)",
+          "oklch(95% 0.0463 150.09)"
+        ]
+      },
+      "block-coral": {
+        "role": "secondary",
+        "displayName": "Block Coral",
+        "tonalRamp": [
+          "oklch(15% 0.0545 45.69)",
+          "oklch(26% 0.0545 45.69)",
+          "oklch(38% 0.0545 45.69)",
+          "oklch(49% 0.0545 45.69)",
+          "oklch(61% 0.0545 45.69)",
+          "oklch(72% 0.0545 45.69)",
+          "oklch(84% 0.0545 45.69)",
+          "oklch(95% 0.0545 45.69)"
+        ]
+      },
+      "block-navy": {
+        "role": "secondary",
+        "displayName": "Block Navy",
+        "tonalRamp": [
+          "oklch(15% 0.0592 284.11)",
+          "oklch(26% 0.0592 284.11)",
+          "oklch(38% 0.0592 284.11)",
+          "oklch(49% 0.0592 284.11)",
+          "oklch(61% 0.0592 284.11)",
+          "oklch(72% 0.0592 284.11)",
+          "oklch(84% 0.0592 284.11)",
+          "oklch(95% 0.0592 284.11)"
+        ]
+      },
+      "accent-magenta": {
+        "role": "secondary",
+        "displayName": "Accent Magenta",
+        "tonalRamp": [
+          "oklch(15% 0.2332 1.92)",
+          "oklch(26% 0.2332 1.92)",
+          "oklch(38% 0.2332 1.92)",
+          "oklch(49% 0.2332 1.92)",
+          "oklch(61% 0.2332 1.92)",
+          "oklch(72% 0.2332 1.92)",
+          "oklch(84% 0.2332 1.92)",
+          "oklch(95% 0.2332 1.92)"
+        ]
+      },
+      "semantic-success": {
+        "role": "semantic",
+        "displayName": "Semantic Success",
+        "tonalRamp": [
+          "oklch(15% 0.1721 148.50)",
+          "oklch(26% 0.1721 148.50)",
+          "oklch(38% 0.1721 148.50)",
+          "oklch(49% 0.1721 148.50)",
+          "oklch(61% 0.1721 148.50)",
+          "oklch(72% 0.1721 148.50)",
+          "oklch(84% 0.1721 148.50)",
+          "oklch(95% 0.1721 148.50)"
+        ]
+      },
+      "overlay-scrim": {
+        "role": "neutral",
+        "displayName": "Overlay Scrim",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(38% 0.0000 0.00)",
+          "oklch(49% 0.0000 0.00)",
+          "oklch(61% 0.0000 0.00)",
+          "oklch(72% 0.0000 0.00)",
+          "oklch(84% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "data-thermal-0": {
+        "role": "quantitative",
+        "displayName": "Thermal occupancy 0%",
+        "tonalRamp": [
+          "oklch(15% 0.2192 264.75)",
+          "oklch(26% 0.2192 264.75)",
+          "oklch(38% 0.2192 264.75)",
+          "oklch(49% 0.2192 264.75)",
+          "oklch(61% 0.2192 264.75)",
+          "oklch(72% 0.2192 264.75)",
+          "oklch(84% 0.2192 264.75)",
+          "oklch(95% 0.2192 264.75)"
+        ],
+        "source": "shared/heatmap.json#/palettes/thermal/stops/0",
+        "purpose": "Occupancy at 0% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-thermal-25": {
+        "role": "quantitative",
+        "displayName": "Thermal occupancy 25%",
+        "tonalRamp": [
+          "oklch(15% 0.1291 211.02)",
+          "oklch(26% 0.1291 211.02)",
+          "oklch(38% 0.1291 211.02)",
+          "oklch(49% 0.1291 211.02)",
+          "oklch(61% 0.1291 211.02)",
+          "oklch(72% 0.1291 211.02)",
+          "oklch(84% 0.1291 211.02)",
+          "oklch(95% 0.1291 211.02)"
+        ],
+        "source": "shared/heatmap.json#/palettes/thermal/stops/1",
+        "purpose": "Occupancy at 25% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-thermal-50": {
+        "role": "quantitative",
+        "displayName": "Thermal occupancy 50%",
+        "tonalRamp": [
+          "oklch(15% 0.1486 98.31)",
+          "oklch(26% 0.1486 98.31)",
+          "oklch(38% 0.1486 98.31)",
+          "oklch(49% 0.1486 98.31)",
+          "oklch(61% 0.1486 98.31)",
+          "oklch(72% 0.1486 98.31)",
+          "oklch(84% 0.1486 98.31)",
+          "oklch(95% 0.1486 98.31)"
+        ],
+        "source": "shared/heatmap.json#/palettes/thermal/stops/2",
+        "purpose": "Occupancy at 50% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-thermal-75": {
+        "role": "quantitative",
+        "displayName": "Thermal occupancy 75%",
+        "tonalRamp": [
+          "oklch(15% 0.1568 55.06)",
+          "oklch(26% 0.1568 55.06)",
+          "oklch(38% 0.1568 55.06)",
+          "oklch(49% 0.1568 55.06)",
+          "oklch(61% 0.1568 55.06)",
+          "oklch(72% 0.1568 55.06)",
+          "oklch(84% 0.1568 55.06)",
+          "oklch(95% 0.1568 55.06)"
+        ],
+        "source": "shared/heatmap.json#/palettes/thermal/stops/3",
+        "purpose": "Occupancy at 75% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-thermal-100": {
+        "role": "quantitative",
+        "displayName": "Thermal occupancy 100%",
+        "tonalRamp": [
+          "oklch(15% 0.2292 20.35)",
+          "oklch(26% 0.2292 20.35)",
+          "oklch(38% 0.2292 20.35)",
+          "oklch(49% 0.2292 20.35)",
+          "oklch(61% 0.2292 20.35)",
+          "oklch(72% 0.2292 20.35)",
+          "oklch(84% 0.2292 20.35)",
+          "oklch(95% 0.2292 20.35)"
+        ],
+        "source": "shared/heatmap.json#/palettes/thermal/stops/4",
+        "purpose": "Occupancy at 100% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-warm-0": {
+        "role": "quantitative",
+        "displayName": "Warm occupancy 0%",
+        "tonalRamp": [
+          "oklch(15% 0.0703 97.01)",
+          "oklch(26% 0.0703 97.01)",
+          "oklch(38% 0.0703 97.01)",
+          "oklch(49% 0.0703 97.01)",
+          "oklch(61% 0.0703 97.01)",
+          "oklch(72% 0.0703 97.01)",
+          "oklch(84% 0.0703 97.01)",
+          "oklch(95% 0.0703 97.01)"
+        ],
+        "source": "shared/heatmap.json#/palettes/warm/stops/0",
+        "purpose": "Occupancy at 0% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-warm-25": {
+        "role": "quantitative",
+        "displayName": "Warm occupancy 25%",
+        "tonalRamp": [
+          "oklch(15% 0.1315 85.40)",
+          "oklch(26% 0.1315 85.40)",
+          "oklch(38% 0.1315 85.40)",
+          "oklch(49% 0.1315 85.40)",
+          "oklch(61% 0.1315 85.40)",
+          "oklch(72% 0.1315 85.40)",
+          "oklch(84% 0.1315 85.40)",
+          "oklch(95% 0.1315 85.40)"
+        ],
+        "source": "shared/heatmap.json#/palettes/warm/stops/1",
+        "purpose": "Occupancy at 25% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-warm-50": {
+        "role": "quantitative",
+        "displayName": "Warm occupancy 50%",
+        "tonalRamp": [
+          "oklch(15% 0.1487 56.83)",
+          "oklch(26% 0.1487 56.83)",
+          "oklch(38% 0.1487 56.83)",
+          "oklch(49% 0.1487 56.83)",
+          "oklch(61% 0.1487 56.83)",
+          "oklch(72% 0.1487 56.83)",
+          "oklch(84% 0.1487 56.83)",
+          "oklch(95% 0.1487 56.83)"
+        ],
+        "source": "shared/heatmap.json#/palettes/warm/stops/2",
+        "purpose": "Occupancy at 50% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-warm-75": {
+        "role": "quantitative",
+        "displayName": "Warm occupancy 75%",
+        "tonalRamp": [
+          "oklch(15% 0.1858 31.31)",
+          "oklch(26% 0.1858 31.31)",
+          "oklch(38% 0.1858 31.31)",
+          "oklch(49% 0.1858 31.31)",
+          "oklch(61% 0.1858 31.31)",
+          "oklch(72% 0.1858 31.31)",
+          "oklch(84% 0.1858 31.31)",
+          "oklch(95% 0.1858 31.31)"
+        ],
+        "source": "shared/heatmap.json#/palettes/warm/stops/3",
+        "purpose": "Occupancy at 75% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      },
+      "data-warm-100": {
+        "role": "quantitative",
+        "displayName": "Warm occupancy 100%",
+        "tonalRamp": [
+          "oklch(15% 0.1698 21.40)",
+          "oklch(26% 0.1698 21.40)",
+          "oklch(38% 0.1698 21.40)",
+          "oklch(49% 0.1698 21.40)",
+          "oklch(61% 0.1698 21.40)",
+          "oklch(72% 0.1698 21.40)",
+          "oklch(84% 0.1698 21.40)",
+          "oklch(95% 0.1698 21.40)"
+        ],
+        "source": "shared/heatmap.json#/palettes/warm/stops/4",
+        "purpose": "Occupancy at 100% on the fixed 0–100% scale.",
+        "rampPurpose": "Panel swatch preview only; never substitute this lightness ramp for the measured five-stop occupancy scale."
+      }
+    },
+    "typographyMeta": {
+      "display-xl": {
+        "displayName": "Original display XL",
+        "purpose": "Preserved figmaSans prescription; permitted local Inter substitution."
+      },
+      "body": {
+        "displayName": "Original body",
+        "purpose": "Original 18px / 320 / 1.45 hierarchy remains the brand prescription."
+      },
+      "caption": {
+        "displayName": "Original mono caption",
+        "purpose": "Original figmaMono prescription; local JetBrains Mono substitute for numeric labels."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "control-feedback",
+        "value": "150ms ease-out",
+        "purpose": "Existing pill hover feedback; disabled under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "analysis-controls-wrap",
+        "value": "768px"
+      },
+      {
+        "name": "analysis-inspector-stack",
+        "value": "560px"
+      }
+    ],
+    "source": {
+      "brand": "docs/DESIGN-source.md",
+      "palette": "shared/heatmap.json",
+      "paletteVersion": 3,
+      "renderedEvidence": [
+        "artifacts/thermal-desktop.png",
+        "artifacts/thermal-mobile.png"
+      ]
+    },
+    "implementationNotes": "Component previews are scoped analytical patterns, not a replacement global token scale. Original figmaSans/figmaMono prescriptions remain. Existing gray helpers, compact sizing, soft secondary fills and inherited eyebrow guidance are not newly canonized."
+  },
+  "components": [
+    {
+      "name": "Primary action",
+      "kind": "button",
+      "description": "Black primary pill from the incumbent shell.",
+      "html": "<button class=\"ds-primary\">Запустить анализ</button>",
+      "css": ".ds-primary{font:480 20px/1.4 Inter,system-ui,sans-serif;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:10px 20px;border:0;border-radius:50px;background:var(--ink,#000);color:var(--canvas,#fff);cursor:pointer;transition:background-color 150ms ease-out,transform 150ms ease-out}.ds-primary:hover{background:var(--navy,#1f1d3d);transform:translateY(-1px)}.ds-primary:active{transform:none}.ds-primary:disabled{opacity:.45;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-primary{transition:none;transform:none}}.ds-primary:focus-visible{outline:2px solid #000;outline-offset:4px}",
+      "refersTo": "button-primary"
+    },
+    {
+      "name": "Secondary action — current snapshot",
+      "kind": "button",
+      "description": "Observed soft secondary fill and compact sizing; original white secondary token remains authoritative.",
+      "html": "<button class=\"ds-secondary\">Экспорт PNG</button>",
+      "css": ".ds-secondary{font:480 14px/1.4 Inter,system-ui,sans-serif;min-height:44px;padding:8px 16px;border:0;border-radius:50px;background:var(--soft,#f7f7f5);color:var(--ink,#000);cursor:pointer;transition:transform 150ms ease-out}.ds-secondary:hover{transform:translateY(-1px)}.ds-secondary:active{transform:none}.ds-secondary:disabled{opacity:.45;cursor:not-allowed}@media(prefers-reduced-motion:reduce){.ds-secondary{transition:none;transform:none}}.ds-secondary:focus-visible{outline:2px solid #000;outline-offset:4px}",
+      "refersTo": "button-secondary"
+    },
+    {
+      "name": "Text input",
+      "kind": "input",
+      "description": "Hairline white input with visible keyboard focus.",
+      "html": "<label class=\"ds-field\">Название места<input class=\"ds-input\" value=\"Место 01\" /></label>",
+      "css": ".ds-field{display:block;font:480 14px/1.45 Inter,system-ui,sans-serif;color:var(--ink,#000)}.ds-input{display:block;margin-top:8px;font:330 18px/1.45 Inter,system-ui,sans-serif;border:1px solid var(--line,#e6e6e6);border-radius:8px;background:var(--canvas,#fff);color:var(--ink,#000);padding:12px 14px;min-height:44px}.ds-input:focus-visible{outline:2px solid #000;outline-offset:4px}",
+      "refersTo": "text-input"
+    },
+    {
+      "name": "Analysis navigation",
+      "kind": "nav",
+      "description": "Monochrome pill navigation with black selected state.",
+      "html": "<nav class=\"ds-nav\" aria-label=\"Исследование\"><button aria-current=\"page\">Анализ</button><button>Разметка</button><button>Метод</button></nav>",
+      "css": ".ds-nav{display:flex;gap:4px;background:var(--canvas,#fff);color:var(--ink,#000)}.ds-nav button{font:480 14px/1.45 Inter,system-ui,sans-serif;padding:10px 18px;border:0;border-radius:50px;min-height:44px;background:transparent;color:inherit;cursor:pointer}.ds-nav button[aria-current]{background:var(--ink,#000);color:var(--canvas,#fff)}.ds-nav button:hover:not([aria-current]){background:var(--soft,#f7f7f5)}.ds-nav button:focus-visible{outline:2px solid #000;outline-offset:4px}",
+      "refersTo": "top-nav"
+    },
+    {
+      "name": "Palette selector",
+      "kind": "input",
+      "description": "Thermal palette selection remains monochrome.",
+      "html": "<select class=\"ds-select\" aria-label=\"Палитра карты\"><option>Синий → красный</option><option>Жёлтый → красный</option></select>",
+      "css": ".ds-select{font:330 14px/1.45 Inter,system-ui,sans-serif;min-height:44px;max-width:230px;padding:10px 32px 10px 16px;border:1px solid var(--line,#e6e6e6);border-radius:50px;background:var(--canvas,#fff);color:var(--ink,#000);cursor:pointer}.ds-select:focus-visible{outline:2px solid #000;outline-offset:4px}",
+      "refersTo": "heatmap-palette-select"
+    },
+    {
+      "name": "Observation period",
+      "kind": "card",
+      "description": "Incumbent lime panel; real observation time stays distinct from playback.",
+      "html": "<section class=\"ds-period\"><div class=\"ds-period-label\">Период наблюдения</div><strong>10 ч 12 мин</strong><p>07:22 — 17:34<br>21 исходный кадр · 42 с видео</p></section>",
+      "css": ".ds-period{font-family:Inter,system-ui,sans-serif;background:var(--lime,#dceeb1);color:var(--ink,#000);border-radius:24px;padding:24px;max-width:280px}.ds-period-label{font-size:12px;font-weight:480;margin-bottom:20px}.ds-period strong{display:block;font-size:37px;font-weight:340;letter-spacing:-1px;line-height:1.1;margin-bottom:12px}.ds-period p{font-size:12px;line-height:1.8;margin:0}"
+    },
+    {
+      "name": "Fixed thermal legend",
+      "kind": "custom",
+      "description": "Measured data ramp with fixed ticks and neutral unknown treatment.",
+      "html": "<div class=\"ds-legend\"><span>Редко занято</span><div class=\"ds-scale\"><div class=\"ds-ramp\"></div><div class=\"ds-ticks\"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div></div><span>Почти всегда занято</span><span class=\"ds-unknown\"><i></i>Нет определённых данных</span></div>",
+      "css": ".ds-legend{display:flex;align-items:start;flex-wrap:wrap;gap:14px;font:12px Inter,system-ui,sans-serif;color:var(--ink,#000);background:var(--canvas,#fff)}.ds-scale{flex:1;min-width:200px}.ds-ramp{height:12px;border-radius:6px;background:linear-gradient(to right,#204fdb,#16c6df,#ffe666,#ff9645,#ed2344)}.ds-ticks{display:flex;justify-content:space-between;margin-top:5px;font:11px \"JetBrains Mono\",monospace;font-variant-numeric:tabular-nums}.ds-unknown{display:inline-flex;align-items:center;gap:8px}.ds-unknown i{display:block;width:28px;height:20px;border-radius:4px;background:repeating-linear-gradient(135deg,#aaa 0 2px,#e6e6e6 2px 5px)}",
+      "refersTo": "heatmap-legend"
+    },
+    {
+      "name": "Exact-value card",
+      "kind": "card",
+      "description": "Illustrative values show occupancy among known intervals and separate coverage. Helper ink follows the original prescription rather than canonizing gray drift.",
+      "html": "<section class=\"ds-card\" aria-label=\"Пример карточки места\"><strong>Место · пример</strong><button class=\"ds-card-close\" aria-label=\"Закрыть карточку\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m18 6-12 12M6 6l12 12\"/></svg></button><span class=\"ds-value\">75%</span><p>занято среди известных интервалов</p><div class=\"ds-coverage\">Покрытие <b>90%</b></div></section>",
+      "css": ".ds-card{position:relative;width:224px;padding:18px;border:1px solid var(--line,#e6e6e6);border-radius:16px;background:var(--canvas,#fff);color:var(--ink,#000);font-family:Inter,system-ui,sans-serif}.ds-card>strong{display:block;font-size:14px;font-weight:540;padding-right:24px;margin-bottom:10px}.ds-card-close{display:inline-flex;align-items:center;justify-content:center;position:absolute;top:2px;right:2px;width:44px;height:44px;border:0;border-radius:9999px;background:transparent;color:#000;cursor:pointer}.ds-card-close:hover{background:var(--line,#e6e6e6)}.ds-value{display:block;font-size:40px;font-weight:540;letter-spacing:-.03em;line-height:1.1;margin-bottom:8px}.ds-card p{margin:0;font-size:13px;line-height:1.4;color:var(--ink,#000)}.ds-coverage{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-soft,#f1f1f1);font-size:13px}.ds-card-close:focus-visible{outline:2px solid #000;outline-offset:4px}",
+      "refersTo": "heatmap-tooltip"
+    },
+    {
+      "name": "Mobile fullscreen",
+      "kind": "button",
+      "description": "Visible 44px circular fullscreen action, including small screens.",
+      "html": "<button class=\"ds-fullscreen\" aria-label=\"Развернуть видео\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M8 3H5a2 2 0 0 0-2 2v3m13-5h3a2 2 0 0 1 2 2v3m0 8v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3\"/></svg></button>",
+      "css": ".ds-fullscreen{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;flex:0 0 44px;padding:0;border:0;border-radius:9999px;background:var(--soft,#f7f7f5);color:var(--ink,#000);cursor:pointer}.ds-fullscreen:hover{background:var(--line,#e6e6e6)}.ds-fullscreen:focus-visible{outline:2px solid #000;outline-offset:4px}",
+      "refersTo": "heatmap-fullscreen-mobile"
+    }
+  ],
+  "narrative": {
+    "northStar": "Editorial paper, measured occupancy",
+    "overview": "The original Figma design system remains the visual authority for the shell. Its source is preserved without modification in `docs/DESIGN-source.md`; this document merges only the user-approved quantitative palette and heatmap components. The black-and-white shell, pill controls and lime observation panel retain the incumbent identity. The approved reference is `docs/reference/approved-thermal.png`.\n\nThe smooth field expresses parking occupancy over a selected period. It is a data visualization within the editorial system, not a new brand palette or a decorative gradient. Exact occupancy and separate coverage remain available alongside the color field. The built analysis surface keeps real camera geometry and real observation times.",
+    "keyCharacteristics": [
+      "Monochrome analytical shell with a lime observation-period panel.",
+      "Continuous blue → cyan → yellow → orange → red data field, with a selectable warm alternative.",
+      "Fixed quantitative scale, transparent roads, and separate unknown-data treatment.",
+      "Exact-value white cards, visible keyboard focus, and usable touch controls."
+    ],
+    "rules": [
+      {
+        "name": "Data Color Boundary",
+        "body": "Quantitative thermal colors encode occupancy only; they do not recolor navigation, primary actions, body text, or observation panels. The original shell prohibition on decorative gradients does not prohibit this measured data ramp.",
+        "section": "colors"
+      },
+      {
+        "name": "Fixed Scale",
+        "body": "Use the same 0–100% occupancy scale for every period and record. Never stretch a result to its own minimum or maximum. Unknown data uses neutral hatching, not a cold endpoint or a free-space color.",
+        "section": "colors"
+      },
+      {
+        "name": "Smooth Field",
+        "body": "Draw a normalized, smoothly blended occupancy field clipped to the mapped support. Fade opacity inward at the boundary without inventing lower occupancy values. Do not draw persistent ROI boxes, polygon borders, or place numbers in thermal mode; editor geometry remains available for editing and hit testing. Keyboard focus and selection use a small outlined circular marker, not an ROI frame.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Reserve `{colors.primary}` for genuine primary CTAs and selected states (e.g., `pricing-tab-selected`). Don't use it as a decorative accent.",
+      "When introducing a story section, choose **one** color block from the `{colors.block-*}` family and let it span full content width with `{rounded.lg}` corners and `{spacing.xxl}` interior padding.",
+      "Keep type in `figmaSans` at variable weights — pick from 320, 330, 340, 480, 540, 700 to express hierarchy. Avoid intermediate weights outside this set.",
+      "Use `figmaMono` only for eyebrows and captions, always uppercase, with the documented positive letter-spacing.",
+      "Compose every CTA as a pill (`{rounded.pill}`) and every icon button as a circle (`{rounded.full}`).",
+      "Allow the page to **return to white canvas** between every two color blocks so each block reads as deliberate.",
+      "Pair `button-primary` and `button-secondary` whenever a section needs both a primary action and a sales / secondary action — the black-and-white pair is the brand signature.",
+      "**Do** keep quantitative thermal colors inside measured data marks and their legend.",
+      "**Do** preserve the actual camera aspect ratio, separate coverage, and visible keyboard/touch selection.",
+      "**Do** synchronize the documented data tokens with `shared/heatmap.json`."
+    ],
+    "donts": [
+      "Don't introduce mid-gray text. Body hierarchy comes from `figmaSans` weight, not from opacity.",
+      "Don't add drop shadows to color-block sections — the color is the depth device.",
+      "Don't introduce new accent colors outside the documented `{colors.block-*}` palette and `{colors.accent-magenta}`. Adding, e.g., a saturated brand orange would break the system.",
+      "Don't combine more than one color block visible inside a single viewport — Figma's pacing always lets the white canvas separate them.",
+      "Don't square off CTAs. Square buttons read as a different brand.",
+      "Don't put `figmaMono` in body copy — it's a taxonomy tool, not a reading typeface.",
+      "Don't replace the `pricing-tab-selected` black fill with a colored tab; the brand pattern is \"selected = primary surface\".",
+      "**Don't** draw persistent ROI boxes or numbers in thermal mode.",
+      "**Don't** treat unknown intervals as free time or map unknown-only places to blue.",
+      "**Don't** normalize the legend to a record's minimum/maximum or infer exact values from blended pixel color."
+    ]
+  }
+}

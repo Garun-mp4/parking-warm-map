@@ -25,6 +25,18 @@ colors:
   semantic-success: "#1ea64a"
   overlay-scrim: "#000000"
 
+  # Quantitative data only; mirrored from shared/heatmap.json version 3.
+  data-thermal-0: "#204fdb"
+  data-thermal-25: "#16c6df"
+  data-thermal-50: "#ffe666"
+  data-thermal-75: "#ff9645"
+  data-thermal-100: "#ed2344"
+  data-warm-0: "#fff3bd"
+  data-warm-25: "#ffd16a"
+  data-warm-50: "#f79647"
+  data-warm-75: "#df4d37"
+  data-warm-100: "#a51d2d"
+
 typography:
   display-xl:
     fontFamily: figmaSans
@@ -268,6 +280,35 @@ components:
     typography: "{typography.caption}"
     rounded: "{rounded.xs}"
     padding: 64px 32px
+  heatmap-surface:
+    backgroundColor: "{colors.surface-soft}"
+    rounded: "{rounded.md}"
+    width: 100%
+  heatmap-tooltip:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    rounded: 16px
+    padding: 18px
+    width: 224px
+  heatmap-tooltip-mobile:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    rounded: 12px
+    padding: 12px
+  heatmap-palette-select:
+    backgroundColor: "{colors.canvas}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.pill}"
+    padding: 10px 32px 10px 16px
+    height: 44px
+  heatmap-legend:
+    rounded: "{rounded.sm}"
+    height: 12px
+  heatmap-fullscreen-mobile:
+    backgroundColor: "{colors.surface-soft}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.full}"
+    size: 44px
 ---
 
 ## Overview
@@ -286,6 +327,20 @@ This is a system built on contrast: the monochrome chrome makes the color blocks
 - Tight negative letter-spacing on display sizes (-1.72px at 86px, -0.96px at 64px) creates a confident editorial cadence.
 - `figmaMono` reserved for category labels, eyebrows, and captions — always uppercase, positive tracking — to flag taxonomy without competing with display type.
 - Color-block page rhythm (home): white hero → marquee strip → white feature → lime systems block → navy ship-products block → coral developer block → white template grid → white footer.
+
+### Parking analysis extension — approved 14 October 2026
+
+**Creative North Star: "Editorial paper, measured occupancy"**
+
+The original Figma design system remains the visual authority for the shell. Its source is preserved without modification in `docs/DESIGN-source.md`; this document merges only the user-approved quantitative palette and heatmap components. The black-and-white shell, pill controls and lime observation panel retain the incumbent identity. The approved reference is `docs/reference/approved-thermal.png`.
+
+The smooth field expresses parking occupancy over a selected period. It is a data visualization within the editorial system, not a new brand palette or a decorative gradient. Exact occupancy and separate coverage remain available alongside the color field. The built analysis surface keeps real camera geometry and real observation times.
+
+**Key Characteristics:**
+- Monochrome analytical shell with a lime observation-period panel.
+- Continuous blue → cyan → yellow → orange → red data field, with a selectable warm alternative.
+- Fixed quantitative scale, transparent roads, and separate unknown-data treatment.
+- Exact-value white cards, visible keyboard focus, and usable touch controls.
 
 ## Colors
 
@@ -318,6 +373,19 @@ This is a system built on contrast: the monochrome chrome makes the color blocks
 ### Semantic
 - **Success Green** ({colors.semantic-success}): Comparison-table checkmarks on pricing. Used as a glyph fill, not a surface.
 - **Overlay Scrim** ({colors.overlay-scrim}): Black used at ~60% opacity behind modal / video-overlay surfaces (token captures the base; opacity applied at render time).
+
+### Quantitative data extension
+
+Data colors are scoped to the heatmap, quantitative legend, and matching data marks. The brand-accent restrictions continue to govern the shell; the explicitly approved data colors are the scoped exception. `shared/heatmap.json` (version 3) is the runtime source for both Python and React. Frontmatter values mirror that file and must be refreshed from it rather than edited independently.
+
+| Role | 0% | 25% | 50% | 75% | 100% |
+|---|---|---|---|---|---|
+| Default thermal | `{colors.data-thermal-0}` | `{colors.data-thermal-25}` | `{colors.data-thermal-50}` | `{colors.data-thermal-75}` | `{colors.data-thermal-100}` |
+| Warm alternative | `{colors.data-warm-0}` | `{colors.data-warm-25}` | `{colors.data-warm-50}` | `{colors.data-warm-75}` | `{colors.data-warm-100}` |
+
+**The Data Color Boundary Rule.** Quantitative thermal colors encode occupancy only; they do not recolor navigation, primary actions, body text, or observation panels. The original shell prohibition on decorative gradients does not prohibit this measured data ramp.
+
+**The Fixed Scale Rule.** Use the same 0–100% occupancy scale for every period and record. Never stretch a result to its own minimum or maximum. Unknown data uses neutral hatching, not a cold endpoint or a free-space color.
 
 ## Typography
 
@@ -356,6 +424,10 @@ OpenType `kern` is enabled across every role.
 
 If implementing without access to figmaSans / figmaMono, suitable open-source substitutes are **Inter** (or **Geist**) for the sans, and **JetBrains Mono** (or **Geist Mono**) for the mono. Inter at variable weights closely matches the fine-grained weight axis figmaSans uses; expect to manually adjust line-heights down by ~0.02 to compensate for Inter's slightly taller x-height.
 
+### Current analysis implementation (observation, not a replacement type system)
+
+The application loads local Inter and JetBrains Mono files, using the substitutes already permitted above; the original figmaSans/figmaMono prescriptions and hierarchy remain intact. The approved analytical heading is compact (`clamp(28px, 3vw, 40px)`, weight 540, line-height 1.15); heatmap values use weight 540 and 40px desktop / 30px mobile, while ticks and time values use tabular monospace. These sizes belong to the analytical components, not a replacement global ramp. Existing gray helper text, mixed compact control sizes, and inherited eyebrow prescriptions are recorded as drift, not new rules for future screens.
+
 ## Layout
 
 ### Spacing System
@@ -378,6 +450,12 @@ If implementing without access to figmaSans / figmaMono, suitable open-source su
 
 White space is used to make the color blocks feel deliberate. Between every colored panel and the next, the page returns to white canvas with `{spacing.section}` of breathing room. Inside a color block, the type itself is given generous side margins (often more than 1/4 of the block's width on each side) so the panel reads as a poster, not a wall of copy.
 
+### Heatmap workspace
+
+Keep the camera image and its overlay on one proportional plane: the supplied observation example is 4:3, and other uploads retain their actual aspect ratio. Never crop the source to imitate the wider concept image. The map occupies the available main-column width; the inspector sits below it. Controls wrap rather than compress the image, and the fixed legend remains immediately below playback.
+
+The implementation changes control arrangement at 768px and stacks the inspector at 560px. Mobile fullscreen remains visible with a 44px circular target; touch and narrow-view controls retain at least 44px hit height. The exact-value card remains bounded within the image (42% maximum width on desktop, 46% on mobile). These are scoped analysis-layout rules; the original marketing layout and responsive reference below remain preserved.
+
 ## Elevation & Depth
 
 | Level | Treatment | Use |
@@ -394,6 +472,10 @@ Figma's marketing system is shadow-light by design — the color blocks substitu
 - **Color-block sections** are the primary depth device. The change from white canvas to lime / lavender / cream is the section break.
 - **Sticky-note style component thumbnails** in FigJam — slightly off-axis pastel rectangles arranged like notes on a board — read as collage, not card-stack.
 - **Embedded product UI mocks** (Figma Design panels, FigJam canvas snippets) appear as flat compositions on color blocks; their internal shadows are subtle and stay within the mock.
+
+### Heatmap overlay depth
+
+Use the camera image, transparent data field, invisible hit targets, and optional white value card as separate layers. The heatmap and tooltip are shadow-free; a hairline separates the white card from the photograph. Saturation is reduced on the underlying video only while the thermal layer is active. Neutral roads remain visually photographic because field alpha is zero outside the union of mapped spaces.
 
 ## Shapes
 
@@ -415,6 +497,10 @@ Figma's marketing system is shadow-light by design — the color blocks substitu
 - Template thumbnails on the home grid sit in `{rounded.md}` tiles with `{spacing.md}` interior padding around the embedded preview.
 - FigJam pastel sticky-note component thumbnails preserve a small `{rounded.sm}` corner that mimics actual sticky paper.
 - No avatar circles appear in marketing surfaces — Figma's marketing avoids personification.
+
+### Smooth field geometry
+
+**The Smooth Field Rule.** Draw a normalized, smoothly blended occupancy field clipped to the mapped support. Fade opacity inward at the boundary without inventing lower occupancy values. Do not draw persistent ROI boxes, polygon borders, or place numbers in thermal mode; editor geometry remains available for editing and hit testing. Keyboard focus and selection use a small outlined circular marker, not an ROI frame.
 
 ## Components
 
@@ -504,6 +590,16 @@ The defining surface of Figma's marketing. Each is a full-content-width panel wi
 **`footer`** — Dense link grid on white canvas with the wordmark "Figma" set in display weight at the top-left.
 - Background `{colors.canvas}`, text `{colors.ink}`, type `{typography.caption}` for column headings and small links, padding `{spacing.section}` top/bottom · `{spacing.xl}` sides.
 
+### Occupancy heatmap (approved data extension)
+
+- **Field and legend:** the field and five-stop legend use the same selected palette from `shared/heatmap.json`. The default is thermal; warm is an explicit alternative. Smooth blending depicts a normalized weighted mean of known place occupancies, never a sum of overlaps. This is visual interpolation of place measurements, not additional pixel-level observations or temperature.
+- **Meaning:** occupancy is occupied time divided by occupied plus free time among known intervals. Coverage is the separately displayed fraction with known state. Unknown-only places are hatched and excluded from the colored field. Frame time and map period are labeled separately in real observation time; the example's 10 h 12 min must not be confused with its 42-second video.
+- **Controls:** palette selection, opacity, and fullscreen use monochrome shell controls. Opacity starts at 60% and is adjustable from 0–100%; it changes visibility, not numbers or analysis. Mobile fullscreen uses `{components.heatmap-fullscreen-mobile}`.
+- **Exact-value card:** `{components.heatmap-tooltip}` is an optional white, hairline-bounded card showing a place's exact percentage and separate coverage. Mouse hover or keyboard focus reveals it; touch, Enter, or Space pins selection. The mobile variant is `{components.heatmap-tooltip-mobile}`. Low coverage has a written caution. Unknown data is described in words as well as hatching.
+- **Keyboard:** one map target enters the tab order; arrows move between places, Enter/Space pin selection, and Escape dismisses. A black/white circular focus ring remains visible against the field. Ordinary controls retain the existing 2px visible focus outline and 4px offset.
+- **Loading/error:** hide an obsolete field while the result, period, or palette changes. Announce loading with status text. A field-load failure shows an alert and retry action; never leave an old field over newly selected data. Motion remains restrained and respects the existing reduced-motion preference.
+- **Exports:** PNG and MP4 use the same measured field, selected palette, opacity, interval, and legend as the screen; exact CSV values retain their meaning. See `docs/HEATMAP.md` for renderer and export details.
+
 ## Do's and Don'ts
 
 ### Do
@@ -525,6 +621,15 @@ The defining surface of Figma's marketing. Each is a full-content-width panel wi
 - Don't square off CTAs. Square buttons read as a different brand.
 - Don't put `figmaMono` in body copy — it's a taxonomy tool, not a reading typeface.
 - Don't replace the `pricing-tab-selected` black fill with a colored tab; the brand pattern is "selected = primary surface".
+
+### Approved analysis extension
+
+- **Do** keep quantitative thermal colors inside measured data marks and their legend.
+- **Do** preserve the actual camera aspect ratio, separate coverage, and visible keyboard/touch selection.
+- **Do** synchronize the documented data tokens with `shared/heatmap.json`.
+- **Don't** draw persistent ROI boxes or numbers in thermal mode.
+- **Don't** treat unknown intervals as free time or map unknown-only places to blue.
+- **Don't** normalize the legend to a record's minimum/maximum or infer exact values from blended pixel color.
 
 ## Responsive Behavior
 
