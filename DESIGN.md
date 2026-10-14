@@ -25,7 +25,7 @@ colors:
   semantic-success: "#1ea64a"
   overlay-scrim: "#000000"
 
-  # Quantitative data only; mirrored from shared/heatmap.json version 5.
+  # Quantitative data only; mirrored from shared/heatmap.json version 7.
   data-thermal-0: "#1853eb"
   data-thermal-25: "#00c2ff"
   data-thermal-50: "#ffe000"
@@ -376,7 +376,7 @@ The smooth field expresses parking occupancy over a selected period. It is a dat
 
 ### Quantitative data extension
 
-Data colors are scoped to the heatmap, quantitative legend, and matching data marks. The brand-accent restrictions continue to govern the shell; the explicitly approved data colors are the scoped exception. `shared/heatmap.json` (version 5) is the runtime source for both Python and React. Frontmatter values mirror that file and must be refreshed from it rather than edited independently.
+Data colors are scoped to the heatmap, quantitative legend, and matching data marks. The brand-accent restrictions continue to govern the shell; the explicitly approved data colors are the scoped exception. `shared/heatmap.json` (version 7) is the runtime source for both Python and React. Frontmatter values mirror that file and must be refreshed from it rather than edited independently.
 
 | Role | 0% | 25% | 50% | 75% | 100% |
 |---|---|---|---|---|---|
@@ -475,7 +475,7 @@ Figma's marketing system is shadow-light by design — the color blocks substitu
 
 ### Heatmap overlay depth
 
-Use the camera image, transparent data field, invisible hit targets, and optional white value card as separate layers. The heatmap and tooltip are shadow-free; a hairline separates the white card from the photograph. Saturation is reduced on the underlying video only while the thermal layer is active. Neutral roads remain visually photographic because field alpha is zero outside the union of mapped spaces.
+Use the camera image, transparent data field, invisible hit targets, and optional white value card as separate layers. The heatmap and tooltip are shadow-free; a hairline separates the white card from the photograph. Saturation is reduced on the underlying video only while the thermal layer is active. Roads remain photographic outside the softly bounded parking-row envelopes; the gaps between neighboring places within a row carry visual interpolation.
 
 ## Shapes
 
@@ -500,7 +500,7 @@ Use the camera image, transparent data field, invisible hit targets, and optiona
 
 ### Smooth field geometry
 
-**The Smooth Field Rule.** Draw a normalized, smoothly blended occupancy field clipped to the mapped support. Fade opacity inward at the boundary without inventing lower occupancy values. Do not draw persistent ROI boxes, polygon borders, or place numbers in thermal mode; editor geometry remains available for editing and hit testing. Keyboard focus and selection use a small outlined circular marker, not an ROI frame.
+**The Smooth Field Rule.** Build softly bounded fields along inferred parking rows. Preserve measured values at place centers and interpolate monotonically between neighboring centers. The field joins adjacent places with soft contours, while driveway gaps separate rows. Fade opacity at the boundary without inventing lower occupancy values. Do not draw individual stamps, persistent ROI boxes, polygon borders, or place numbers in thermal mode; editor geometry remains available for editing and hit testing. Keyboard focus and selection use a small outlined circular marker, not an ROI frame.
 
 ## Components
 
@@ -592,10 +592,10 @@ The defining surface of Figma's marketing. Each is a full-content-width panel wi
 
 ### Occupancy heatmap (approved data extension)
 
-- **Color mechanics:** Gaussian weights interpolate numeric occupancy only. A separate geometric mask gives each place a broad constant-strength core and smoothstep feather; masks combine by maximum, so overlaps do not increase opacity. The HSV ramp preserves hue and saturation between anchors (0.1 percentage-point color lookup); the legend samples the same ramp. The video retains 10% saturation. Geometry, background saturation, ramp resolution, and default opacity are shared in `shared/heatmap.json`; exports scale premultiplied alpha to avoid colored fringes.
-- **Field and legend:** the field and hue-preserving legend use the same five palette anchors from `shared/heatmap.json`. The default is thermal; warm is an explicit alternative. Smooth blending depicts a normalized weighted mean of known place occupancies, never a sum of overlaps. This is visual interpolation of place measurements, not additional pixel-level observations or temperature.
+- **Color mechanics:** Infer parking rows from camera geometry and interpolate measured occupancy along their center lines with smoothstep. Each row has one soft envelope with rounded caps; it narrows and fades in large inter-place gaps instead of becoming an opaque stripe. Geometric influence combines by maximum, so overlaps do not increase opacity. The HSV ramp preserves hue and saturation between anchors (0.1 percentage-point color lookup); the legend samples the same ramp. The video retains 10% saturation. Geometry, background saturation, ramp resolution, and default opacity are shared in `shared/heatmap.json`; exports scale premultiplied alpha to avoid colored fringes.
+- **Field and legend:** the field and hue-preserving legend use the same five palette anchors from `shared/heatmap.json`. The default is thermal; warm is an explicit alternative. Interpolation preserves measured center values and never overshoots or sums overlaps. This is visual interpolation of place measurements, not additional pixel-level observations or temperature.
 - **Meaning:** occupancy is occupied time divided by occupied plus free time among known intervals. Coverage is the separately displayed fraction with known state. Unknown-only places are hatched and excluded from the colored field. Frame time and map period are labeled separately in real observation time; the example's 10 h 12 min must not be confused with its 42-second video.
-- **Controls:** palette selection, opacity, and fullscreen use monochrome shell controls. Opacity starts at 85% and is adjustable from 0–100%; it changes visibility, not numbers or analysis. Mobile fullscreen uses `{components.heatmap-fullscreen-mobile}`.
+- **Controls:** palette selection, opacity, and fullscreen use monochrome shell controls. Opacity starts at 70% and is adjustable from 0–100%; it changes visibility, not numbers or analysis. Mobile fullscreen uses `{components.heatmap-fullscreen-mobile}`.
 - **Exact-value card:** `{components.heatmap-tooltip}` is an optional white, hairline-bounded card showing a place's exact percentage and separate coverage. Mouse hover or keyboard focus reveals it; touch, Enter, or Space pins selection. The mobile variant is `{components.heatmap-tooltip-mobile}`. Low coverage has a written caution. Unknown data is described in words as well as hatching.
 - **Keyboard:** one map target enters the tab order; arrows move between places, Enter/Space pin selection, and Escape dismisses. A black/white circular focus ring remains visible against the field. Ordinary controls retain the existing 2px visible focus outline and 4px offset.
 - **Loading/error:** hide an obsolete field while the result, period, or palette changes. Announce loading with status text. A field-load failure shows an alert and retry action; never leave an old field over newly selected data. Motion remains restrained and respects the existing reduced-motion preference.

@@ -1,12 +1,14 @@
 {
-  "version": 5,
+  "version": 7,
   "render": {
-    "defaultOpacity": 0.85,
+    "defaultOpacity": 0.7,
     "videoSaturation": 0.1,
-    "footprintScale": 0.5,
-    "coreRadius": 0.78,
-    "edgeRadius": 1.0,
-    "boundaryFeather": 0.12,
+    "rowDepthScale": 1.2,
+    "endCapScale": 0.85,
+    "coreRadius": 0.55,
+    "influenceScale": 0.85,
+    "rowGapLimit": 1.6,
+    "roadClearance": 0.42,
     "rampSteps": 1000
   },
   "palettes": {
