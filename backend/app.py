@@ -7,8 +7,9 @@ from pathlib import Path
 import subprocess
 import sys
 from uuid import uuid4
+from typing import Literal
 import psutil
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 from . import store
@@ -229,15 +230,50 @@ def get_result(run_id: str):
 
 
 @app.get("/api/runs/{run_id}/summary")
-def get_summary(run_id: str, start: float = 0, end: float | None = None):
+def get_summary(
+    run_id: str,
+    start: float = Query(0, ge=0, allow_inf_nan=False),
+    end: float | None = Query(None, ge=0, allow_inf_nan=False),
+):
     try:
-        return summary(require_result(run_id), start, end)
+        return {"run_id": run_id, **summary(require_result(run_id), start, end)}
+    except ValueError as error:
+        raise HTTPException(422, str(error)) from error
+
+
+@app.get("/api/runs/{run_id}/heatmap.png")
+def get_heatmap(
+    run_id: str,
+    start: float = Query(0, ge=0, allow_inf_nan=False),
+    end: float | None = Query(None, ge=0, allow_inf_nan=False),
+    palette: Literal["thermal", "warm"] = "thermal",
+):
+    from .heatmap import png_layer
+
+    result = require_result(run_id)
+    metadata = require_project(result["project_id"])["metadata"]
+    try:
+        data = summary(result, start, end)
+        return Response(
+            png_layer(data["slots"], metadata["width"], metadata["height"], palette),
+            media_type="image/png",
+            headers={"Cache-Control": "private, max-age=86400"},
+        )
     except ValueError as error:
         raise HTTPException(422, str(error)) from error
 
 
 @app.get("/api/runs/{run_id}/export/{format}")
-def export(run_id: str, format: str, start: float = 0, end: float | None = None):
+def export(
+    run_id: str,
+    format: str,
+    start: float = Query(0, ge=0, allow_inf_nan=False),
+    end: float | None = Query(None, ge=0, allow_inf_nan=False),
+    palette: Literal["thermal", "warm"] = "thermal",
+    opacity: float = Query(0.6, ge=0, le=1, allow_inf_nan=False),
+    video_seconds: float = Query(0, ge=0, allow_inf_nan=False),
+    mode: Literal["heatmap", "states"] = "heatmap",
+):
     from .exports import png, csv_export, video_export
 
     result = require_result(run_id)
@@ -247,7 +283,15 @@ def export(run_id: str, format: str, start: float = 0, end: float | None = None)
         summary(result, start, end)
         if format == "png":
             return Response(
-                png(result, project["metadata"], start, end),
+                png(
+                    result,
+                    project["metadata"],
+                    start,
+                    end,
+                    palette,
+                    opacity,
+                    video_seconds,
+                ),
                 media_type="image/png",
                 headers={
                     "Content-Disposition": 'attachment; filename="parking-heatmap.png"'
@@ -271,10 +315,21 @@ def export(run_id: str, format: str, start: float = 0, end: float | None = None)
             )
         if format == "mp4":
             path = video_export(
-                result, project["metadata"], DATA / "projects" / project["id"]
+                result,
+                project["metadata"],
+                DATA / "projects" / project["id"],
+                start,
+                end,
+                palette,
+                opacity,
+                mode,
             )
             return FileResponse(
-                path, media_type="video/mp4", filename="parking-annotated.mp4"
+                path,
+                media_type="video/mp4",
+                filename="parking-heatmap.mp4"
+                if mode == "heatmap"
+                else "parking-annotated.mp4",
             )
     except (ValueError, subprocess.SubprocessError) as error:
         raise HTTPException(422, str(error)) from error

@@ -105,23 +105,6 @@ class Stabilizer:
         return output
 
 
-def heat_color(percent):
-    if percent is None:
-        return (230, 230, 230)
-    palette = [
-        (255, 255, 255),
-        (244, 176, 197),
-        (61, 29, 31),
-    ]  # BGR: canvas, lilac, navy
-    amount = min(max(percent / 100, 0), 1) * 2
-    index = min(int(amount), 1)
-    fraction = amount - index
-    return tuple(
-        int(round(a + (b - a) * fraction))
-        for a, b in zip(palette[index], palette[index + 1])
-    )
-
-
 def metrics(truth, predicted):
     a, b = np.asarray(truth), np.asarray(predicted)
     if a.size == 0 or a.shape != b.shape:
