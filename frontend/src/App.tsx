@@ -38,6 +38,7 @@ import {
   clock,
   duration,
   heatColor,
+  initialTimeScale,
   percent,
   request,
   sampleIndex,
@@ -154,13 +155,19 @@ export default function App() {
         setResult(null);
         setSummary(null);
         setSeconds(0);
+        setMode(data ? "heatmap" : "video");
         setSelected(null);
         setSlots(next.slots);
         setHistory([]);
         setDraft([]);
         setDrawing(false);
         setRange([0, next.metadata.source_duration_seconds]);
-        setSettings(next.latest_run?.settings || initialSettings);
+        setSettings(
+          next.latest_run?.settings || {
+            ...initialSettings,
+            time_scale: initialTimeScale(next.metadata),
+          },
+        );
         localStorage.setItem("parking.project", id);
       }
       if (data) {
@@ -743,6 +750,8 @@ export default function App() {
                               key={tab}
                               className={mode === tab ? "selected" : ""}
                               aria-pressed={mode === tab}
+                              disabled={tab !== "video" && !result}
+                              title={tab !== "video" && !result ? "Доступно после анализа" : undefined}
                               onClick={() => setMode(tab)}
                             >
                               {["Видео", "Занятость", "Тепловая карта"][i]}

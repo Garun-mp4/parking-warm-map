@@ -5,6 +5,7 @@ async (page) => {
   page.on('pageerror', error => errors.push(error.message));
   await page.setViewportSize({width:1440,height:1000});
   await page.goto(origin);
+  await page.getByLabel('Исследование',{exact:true}).selectOption('cnrpark-day');
   await page.locator('.heatmap-layer[data-ready="true"]').waitFor();
   const original = await (await page.request.get(origin+'/api/projects/cnrpark-day')).json();
   const originalResult = await (await page.request.get(origin+'/api/runs/'+original.completed_run_id+'/result')).json();

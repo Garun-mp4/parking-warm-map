@@ -1,0 +1,4 @@
+# Optional: preparing a new timelapse from a public YouTube DVR archive.
+# The application itself does not need this package.
+yt-dlp==2026.8.19
+imageio-ffmpeg==0.6.0

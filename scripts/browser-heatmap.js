@@ -6,6 +6,7 @@ async (page) => {
   page.on('pageerror', e => errors.push(e.message))
   await page.setViewportSize({width:1440,height:1080})
   await page.goto('http://127.0.0.1:8765')
+  await page.getByLabel('Исследование',{exact:true}).selectOption('cnrpark-day')
   await page.locator('.heatmap-layer[data-ready="true"]').waitFor()
   check(await page.getByLabel('Непрозрачность карты',{exact:true}).inputValue()==='0.7','Shared default opacity mismatch')
   await page.evaluate(() => document.fonts.ready)

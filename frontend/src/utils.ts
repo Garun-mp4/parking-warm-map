@@ -1,4 +1,9 @@
-import type { SourceSample } from "./types";
+import type { Metadata, SourceSample } from "./types";
+
+export const initialTimeScale = (metadata: Metadata) =>
+  metadata.kind === "video"
+    ? metadata.source_duration_seconds / metadata.video_duration_seconds
+    : 1;
 
 export const duration = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
@@ -11,13 +16,17 @@ export const duration = (seconds: number) => {
 export const clock = (seconds: number, start?: string) => {
   if (start) {
     // Captures are local source timestamps: do not reinterpret them in the viewer's timezone.
-    const base = start.split("T")[1].split(":").map(Number);
+    const match = start.match(/T(\d{2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?/);
+    if (!match) throw new Error("Некорректное время начала наблюдения");
+    const base = match.slice(1).map(Number);
     seconds += base[0] * 3600 + base[1] * 60 + (base[2] || 0);
   }
-  const h = Math.floor(seconds / 3600);
+  const days = start ? Math.floor(seconds / 86400) : 0;
+  const totalHours = Math.floor(seconds / 3600);
+  const h = start ? totalHours % 24 : totalHours;
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}${start ? "" : `:${String(s).padStart(2, "0")}`}`;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}${start ? (days ? ` (+${days} д)` : "") : `:${String(s).padStart(2, "0")}`}`;
 };
 
 export function sampleIndex(

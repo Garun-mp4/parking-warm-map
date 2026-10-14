@@ -1,0 +1,87 @@
+{
+  "video_id": "ta-4QZbfMXc",
+  "requested_start": "2026-10-13T13:00:00+00:00",
+  "source_duration_seconds": 43200.0,
+  "segment_seconds": 5.0,
+  "first_sequence": 3696658,
+  "segment_count": 8640,
+  "source_url": "https://www.youtube.com/watch?v=ta-4QZbfMXc",
+  "source_title": "Moonbeam Parking Lot",
+  "publisher": "Solitude Mountain Resort",
+  "source_bytes": 4239613327,
+  "first_frame_utc": "2026-10-13T12:59:56.283217+00:00",
+  "last_segment_first_frame_utc": "2026-10-14T00:59:56.284800+00:00",
+  "max_walltime_step_seconds": 19.007714986801147,
+  "output_seconds": 576.0,
+  "time_scale": 75,
+  "fps": 15,
+  "width": 1280,
+  "height": 720,
+  "frames": 8640,
+  "bytes": 108777763,
+  "sha256": "c66ce6206584118e879abd01dda859e0bb50ee214d961ce1e88b8064eb2a3e62",
+  "temporal_sampling_seconds": 5.0,
+  "encoder": "ffmpeg version 7.1-essentials_build-www.gyan.dev Copyright (c) 2000-2024 the FFmpeg developers",
+  "method": "One original keyframe per five-second segment; uniform 75x acceleration, no temporal event cuts or spatial crop",
+  "parent_source_frame_comparison": [
+    {
+      "frame": 0,
+      "rgb_mae": 0.8475
+    },
+    {
+      "frame": 2160,
+      "rgb_mae": 2.0245
+    },
+    {
+      "frame": 4320,
+      "rgb_mae": 2.1966
+    },
+    {
+      "frame": 6480,
+      "rgb_mae": 2.5438
+    },
+    {
+      "frame": 8639,
+      "rgb_mae": 1.4099
+    }
+  ],
+  "parent_sha256": "a0b0de6e430c38cb87751d1d6db85c0eea4057d4af1deece7daf7b7fb440ba5a",
+  "source_frame_comparison": [
+    {
+      "frame": 0,
+      "rgb_mae": 0.8836
+    },
+    {
+      "frame": 2160,
+      "rgb_mae": 3.4526
+    },
+    {
+      "frame": 4320,
+      "rgb_mae": 2.2111
+    },
+    {
+      "frame": 6480,
+      "rgb_mae": 2.2687
+    },
+    {
+      "frame": 8639,
+      "rgb_mae": 1.4027
+    }
+  ],
+  "comparison_reference": "Verified full-quality timelapse",
+  "compression": {
+    "crf": 25,
+    "maxrate_kbit_s": 1800,
+    "bufsize_kbit": 3600
+  },
+  "checks": {
+    "full_ffmpeg_decode": true,
+    "duration_and_frame_count": true,
+    "source_sequence_order": true,
+    "sampled_frame_fidelity": true,
+    "browser_playback_and_seek": true,
+    "browser_source_time_scale": 75,
+    "browser_aspect_ratio": "16:9",
+    "browser_errors": 0
+  }
+}

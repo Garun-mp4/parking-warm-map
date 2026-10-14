@@ -5,6 +5,7 @@ async (page) => {
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.setViewportSize({ width: 1440, height: 1080 })
   await page.goto('http://127.0.0.1:8765')
+  await page.getByLabel('Исследование',{exact:true}).selectOption('cnrpark-day')
   await page.getByRole('heading', { name: 'День в цифрах' }).waitFor()
   check(await page.locator('video').getAttribute('poster') === '/api/projects/cnrpark-day/poster?first=true', 'Initial poster is not the first source capture')
   await page.getByRole('button', { name: 'Тепловая карта', exact: true }).click()
