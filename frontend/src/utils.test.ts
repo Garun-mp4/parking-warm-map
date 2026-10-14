@@ -18,7 +18,8 @@ describe("source timestamps, not sped-up playback time", () => {
   });
   it("distinguishes unknown from zero occupancy and keeps a fixed scale", () => {
     expect(heatColor(null)).toBe("#e6e6e6");
-    expect(heatColor(0)).toBe("rgb(255,255,255)");
-    expect(heatColor(100)).toBe("rgb(31,29,61)");
+    expect(heatColor(0)).toBe("rgb(32,79,219)");
+    expect(heatColor(100)).toBe("rgb(237,35,68)");
+    expect(heatColor(100, "warm")).toBe("rgb(165,29,45)");
   });
 });

@@ -34,18 +34,7 @@ export function sampleIndex(
   return Math.max(0, low - 1);
 }
 
-export function heatColor(percent: number | null): string {
-  if (percent === null) return "#e6e6e6";
-  const palette = [
-    [255, 255, 255],
-    [197, 176, 244],
-    [31, 29, 61],
-  ];
-  const amount = Math.min(100, Math.max(0, percent)) / 50;
-  const i = Math.min(Math.floor(amount), 1),
-    f = amount - i;
-  return `rgb(${palette[i].map((value, j) => Math.round(value + (palette[i + 1][j] - value) * f)).join(",")})`;
-}
+export { heatColor } from "./heatmap";
 
 export const percent = (value: number | null | undefined) =>
   value == null ? "—" : `${Math.round(value)}%`;

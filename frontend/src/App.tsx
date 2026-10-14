@@ -43,6 +43,9 @@ import {
   sampleIndex,
 } from "./utils";
 import UploadDialog from "./UploadDialog";
+import HeatmapLayer from "./HeatmapLayer";
+import { heatGradient, heatmapVersion, palettes } from "./heatmap";
+import type { HeatPalette } from "./heatmap";
 
 const initialSettings: Settings = {
   model: "malexnet",
@@ -64,7 +67,9 @@ export default function App() {
   const [view, setView] = useState<"analysis" | "editor" | "method">(
     "analysis",
   );
-  const [mode, setMode] = useState<"video" | "states" | "heatmap">("states");
+  const [mode, setMode] = useState<"video" | "states" | "heatmap">("heatmap");
+  const [palette, setPalette] = useState<HeatPalette>("thermal");
+  const [heatOpacity, setHeatOpacity] = useState(0.6);
   const [upload, setUpload] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -199,6 +204,17 @@ export default function App() {
     (slot) => slot.id === selected,
   );
   const selectedSummary = summary?.slots.find((slot) => slot.id === selected);
+  const heatSummary =
+    summary &&
+    summary.run_id === result?.run_id &&
+    summary.start === range[0] &&
+    summary.end === range[1]
+      ? summary
+      : null;
+  const heatUrl =
+    heatSummary && result
+      ? `/api/runs/${result.run_id}/heatmap.png?start=${heatSummary.start}&end=${heatSummary.end}&palette=${palette}&v=${heatmapVersion}`
+      : null;
   const run = project?.latest_run;
   const active = !!run && ["running", "queued"].includes(run.status);
   const sparse = meta?.kind === "sampled_timelapse";
@@ -310,7 +326,7 @@ export default function App() {
     setError("");
     try {
       const response = await fetch(
-        `/api/runs/${result.run_id}/export/${format}?start=${range[0]}&end=${range[1]}`,
+        `/api/runs/${result.run_id}/export/${format}?start=${range[0]}&end=${range[1]}&palette=${palette}&opacity=${heatOpacity}&video_seconds=${seconds}&mode=${mode === "states" ? "states" : "heatmap"}`,
       );
       if (!response.ok) {
         const detail = await response.json();
@@ -320,7 +336,7 @@ export default function App() {
         url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = `parking-${format === "png" ? "heatmap" : format === "mp4" ? "annotated" : "statistics"}.${format}`;
+      link.download = `parking-${format === "png" ? "heatmap" : format === "mp4" ? (mode === "states" ? "annotated" : "heatmap") : "statistics"}.${format}`;
       link.click();
       window.setTimeout(() => URL.revokeObjectURL(url), 1000);
       setNotice("Файл подготовлен и передан браузеру для сохранения.");
@@ -463,7 +479,7 @@ export default function App() {
               </article>
             </div>
             <section className="method-formula">
-              <h2>Чем темнее, тем дольше занято</h2>
+              <h2>От синего к красному — от редкой занятости к высокой</h2>
               <p className="formula">
                 Время занятости / время достоверного наблюдения × 100%
               </p>
@@ -472,6 +488,13 @@ export default function App() {
                 наблюдения показывается рядом. Для редких снимков состояние
                 между наблюдениями оценивается по последнему кадру. Моменты
                 приезда и отъезда внутри такого интервала неизвестны.
+              </p>
+              <p>
+                Мягкие пятна — визуальное обобщение значений соседних мест.
+                Проезды за пределами размеченных областей не окрашиваются; места
+                без определённых данных показаны серой штриховкой. Точный
+                процент и покрытие доступны по нажатию на место. Палитра и
+                непрозрачность меняют вид карты, а не результат модели.
               </p>
             </section>
             <div className="method-grid">
@@ -545,7 +568,9 @@ export default function App() {
           </section>
         ) : (
           <>
-            <section className="page-heading">
+            <section
+              className={`page-heading ${view === "analysis" ? "analysis-heading" : ""}`}
+            >
               <div>
                 <h1>
                   {view === "editor" ? (
@@ -554,17 +579,13 @@ export default function App() {
                       свои границы.
                     </>
                   ) : (
-                    <>
-                      Весь день.
-                      <br />
-                      На одной карте.
-                    </>
+                    <>Тепловая карта занятости</>
                   )}
                 </h1>
                 <p>
                   {view === "editor"
                     ? "Выделите области мест. Разметка сохраняется для этого ракурса."
-                    : "Как заполняется парковка, где задерживаются машины и какие места остаются свободными."}
+                    : "Доля занятого времени среди известных интервалов."}
                 </p>
               </div>
               <div className="project-picker">
@@ -586,7 +607,9 @@ export default function App() {
                 <span>{meta?.source_name}</span>
               </div>
             </section>
-            <section className="workspace">
+            <section
+              className={`workspace ${view === "analysis" && result ? "analysis-workspace" : ""}`}
+            >
               <div className="video-column">
                 <div className="video-toolbar">
                   {view === "editor" ? (
@@ -641,6 +664,42 @@ export default function App() {
                           ),
                         )}
                       </div>
+                      {mode === "heatmap" && (
+                        <div className="heat-controls">
+                          <select
+                            aria-label="Палитра карты"
+                            value={palette}
+                            onChange={(event) =>
+                              setPalette(
+                                event.target.value === "warm"
+                                  ? "warm"
+                                  : "thermal",
+                              )
+                            }
+                          >
+                            {Object.entries(palettes).map(([key, value]) => (
+                              <option key={key} value={key}>
+                                {value.label}
+                              </option>
+                            ))}
+                          </select>
+                          <label className="heat-opacity">
+                            Непрозрачность
+                            <input
+                              aria-label="Непрозрачность карты"
+                              type="range"
+                              min="0"
+                              max="1"
+                              step="0.05"
+                              value={heatOpacity}
+                              onChange={(event) =>
+                                setHeatOpacity(Number(event.target.value))
+                              }
+                            />
+                            <output>{Math.round(heatOpacity * 100)}%</output>
+                          </label>
+                        </div>
+                      )}
                       <button
                         className="icon-button fullscreen"
                         aria-label="Развернуть видео"
@@ -685,7 +744,7 @@ export default function App() {
                     <X size={20} />
                   </button>
                   <div
-                    className="video-plane"
+                    className={`video-plane ${view === "analysis" && mode === "heatmap" ? "with-heatmap" : ""}`}
                     style={
                       {
                         "--media-ratio": meta!.width / meta!.height,
@@ -715,7 +774,30 @@ export default function App() {
                         aria-label="Видео парковки"
                       />
                     )}
-                    {(view === "editor" || mode !== "video") && (
+                    {view === "analysis" && mode === "heatmap" && (
+                      <>
+                        <span className="frame-time-chip">
+                          Кадр · {clock(sourceSeconds, meta!.capture_start)}
+                        </span>
+                        {result ? (
+                          <HeatmapLayer
+                            url={heatUrl}
+                            slots={heatSummary?.slots || []}
+                            width={meta!.width}
+                            height={meta!.height}
+                            opacity={heatOpacity}
+                            selected={selected}
+                            onSelect={setSelected}
+                          />
+                        ) : (
+                          <div className="heat-layer-status">
+                            Разметьте места и запустите анализ, чтобы построить
+                            карту.
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {(view === "editor" || mode === "states") && (
                       <svg
                         ref={svg}
                         className="parking-overlay"
@@ -751,21 +833,17 @@ export default function App() {
                       >
                         {displayedSlots.map((slot, col) => {
                           const state = sample?.states[col],
-                            value =
-                              summary?.slots.find((s) => s.id === slot.id)
-                                ?.occupancy ?? null;
+                            slotPoints = slot.points;
                           const fill =
                             view === "editor"
                               ? selected === slot.id
                                 ? "#c5b0f4"
                                 : "#ffffff"
-                              : mode === "heatmap"
-                                ? heatColor(value)
-                                : state === 1
-                                  ? "#f3c9b6"
-                                  : state === 0
-                                    ? "#c8e6cd"
-                                    : "#e6e6e6";
+                              : state === 1
+                                ? "#f3c9b6"
+                                : state === 0
+                                  ? "#c8e6cd"
+                                  : "#e6e6e6";
                           const x =
                               (slot.points.reduce((a, p) => a + p[0], 0) /
                                 slot.points.length) *
@@ -793,12 +871,10 @@ export default function App() {
                                 {slot.name}:{" "}
                                 {view === "editor"
                                   ? "область наблюдения"
-                                  : mode === "heatmap"
-                                    ? percent(value)
-                                    : stateLabel(state)}
+                                  : stateLabel(state)}
                               </title>
                               <polygon
-                                points={slot.points
+                                points={slotPoints
                                   .map(
                                     (p) =>
                                       `${p[0] * meta!.width},${p[1] * meta!.height}`,
@@ -957,13 +1033,29 @@ export default function App() {
                         <option value="2">2×</option>
                       </select>
                     </div>
-                    <div className="legend">
+                    <div
+                      className={`legend ${mode === "heatmap" ? "thermal-legend-wrap" : ""}`}
+                    >
                       {mode === "heatmap" ? (
-                        <>
-                          <span>Меньше занято</span>
-                          <div className="heat-scale" />
-                          <span>Больше · 100%</span>
-                        </>
+                        <div className="thermal-legend">
+                          <span>Редко занято</span>
+                          <div className="thermal-scale">
+                            <div
+                              className="heat-scale"
+                              style={{ background: heatGradient(palette) }}
+                            />
+                            <div className="thermal-ticks">
+                              {[0, 25, 50, 75, 100].map((n) => (
+                                <span key={n}>{n}%</span>
+                              ))}
+                            </div>
+                          </div>
+                          <span>Почти всегда занято</span>
+                          <span className="unknown-legend">
+                            <i />
+                            Нет определённых данных
+                          </span>
+                        </div>
                       ) : (
                         <>
                           <span>
@@ -986,6 +1078,13 @@ export default function App() {
                           : "Неподвижная камера"}
                       </span>
                     </div>
+                    {mode === "heatmap" && (
+                      <p className="heat-period">
+                        Период карты: {clock(range[0], meta!.capture_start)} —{" "}
+                        {clock(range[1], meta!.capture_start)} · Нажмите на
+                        место для точных значений.
+                      </p>
+                    )}
                   </>
                 )}
               </div>
@@ -1069,52 +1168,61 @@ export default function App() {
                 ) : (
                   <>
                     {sample && (
-                      <div className="live-counts">
-                        <div>
-                          <strong>
-                            {sample.states.filter((s) => s === 1).length}
-                          </strong>
-                          <span>
-                            <i className="dot occupied" />
-                            Занято
-                          </span>
-                        </div>
-                        <div>
-                          <strong>
-                            {sample.states.filter((s) => s === 0).length}
-                          </strong>
-                          <span>
-                            <i className="dot free" />
-                            Свободно
-                          </span>
-                        </div>
-                        <div>
-                          <strong>
-                            {sample.states.filter((s) => s === -1).length}
-                          </strong>
-                          <span>
-                            <i className="dot unknown" />
-                            Неясно
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    {selected && selectedIndex >= 0 && sample && (
-                      <div className="selected-slot">
-                        <button
-                          className="icon-button"
-                          aria-label="Снять выделение"
-                          onClick={() => setSelected(null)}
-                        >
-                          <X size={15} />
-                        </button>
-                        <strong>{displayedSlots[selectedIndex]?.name}</strong>
+                      <div className="frame-summary">
                         <p>
-                          {stateLabel(sample.states[selectedIndex])} · за период{" "}
-                          {percent(selectedSummary?.occupancy)}
+                          На кадре {clock(sourceSeconds, meta!.capture_start)}
                         </p>
+                        <div className="live-counts">
+                          <div>
+                            <strong>
+                              {sample.states.filter((s) => s === 1).length}
+                            </strong>
+                            <span>
+                              <i className="dot occupied" />
+                              Занято
+                            </span>
+                          </div>
+                          <div>
+                            <strong>
+                              {sample.states.filter((s) => s === 0).length}
+                            </strong>
+                            <span>
+                              <i className="dot free" />
+                              Свободно
+                            </span>
+                          </div>
+                          <div>
+                            <strong>
+                              {sample.states.filter((s) => s === -1).length}
+                            </strong>
+                            <span>
+                              <i className="dot unknown" />
+                              Неясно
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     )}
+                    {mode !== "heatmap" &&
+                      selected &&
+                      selectedIndex >= 0 &&
+                      sample && (
+                        <div className="selected-slot">
+                          <button
+                            className="icon-button"
+                            aria-label="Снять выделение"
+                            onClick={() => setSelected(null)}
+                          >
+                            <X size={15} />
+                          </button>
+                          <strong>{displayedSlots[selectedIndex]?.name}</strong>
+                          <p>
+                            {stateLabel(sample.states[selectedIndex])} · среди
+                            известных интервалов{" "}
+                            {percent(selectedSummary?.occupancy)}
+                          </p>
+                        </div>
+                      )}
                     <div className="configuration">
                       <h2>
                         {result ? "Повторить исследование" : "Начнём с анализа"}
@@ -1435,7 +1543,7 @@ export default function App() {
                             dataKey="occupied"
                             stroke="#000000"
                             strokeWidth={2}
-                            fill="#c5b0f4"
+                            fill="#f28b3c"
                             fillOpacity={0.48}
                             isAnimationActive={false}
                           />
@@ -1582,7 +1690,10 @@ export default function App() {
                                 <span className="occupancy-cell">
                                   <i
                                     style={{
-                                      background: heatColor(slot.occupancy),
+                                      background: heatColor(
+                                        slot.occupancy,
+                                        palette,
+                                      ),
                                     }}
                                   />
                                   {percent(slot.occupancy)}

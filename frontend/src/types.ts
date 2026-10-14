@@ -78,6 +78,7 @@ export interface SlotSummary extends Slot {
   changes: number;
 }
 export interface Summary {
+  run_id: string;
   start: number;
   end: number;
   duration: number;

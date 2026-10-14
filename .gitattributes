@@ -1,0 +1,2 @@
+# Preserve the exact user-supplied design reference and its recorded SHA-256.
+/docs/DESIGN-source.md -text
