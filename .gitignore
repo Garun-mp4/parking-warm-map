@@ -1,0 +1,14 @@
+.venv/
+node_modules/
+frontend/dist/
+data/
+models/
+__pycache__/
+.pytest_cache/
+.playwright-cli/
+*.pyc
+*.tsbuildinfo
+.ruff_cache/
+*.log
+.env
+artifacts/

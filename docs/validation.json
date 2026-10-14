@@ -1,0 +1,193 @@
+{
+  "selected_model": "malexnet",
+  "confidence": 0.7,
+  "validation_date": "2015-11-16",
+  "test_date": "2016-02-12",
+  "training_source": "Public mAlexNet weights trained on CNRPark A/B (July 2015), checkpoint selected by authors on CNR-EXT validation. No local training.",
+  "evaluation_note": "Test day reserved before threshold selection in this script. Same CNR-EXT camera; not a cross-camera generalization claim. Unknown positive labels count as false negatives in recall. Metrics concern sampled states, not precise arrivals.",
+  "source_url": "http://cnrpark.it/",
+  "model_sha256": "54768aa23a5a2c6e00776b2d362c770f216a08fcdeb8b6085e4a33e8b066d87a",
+  "threshold_selection": [
+    {
+      "threshold": 0.5,
+      "total": 1026,
+      "coverage": 1.0,
+      "accuracy_on_known": 0.9961013645224172,
+      "precision": 0.9947712418300654,
+      "recall": 1.0,
+      "f1": 0.9973787680209699,
+      "true_positive": 761,
+      "false_positive": 4,
+      "false_negative_including_abstentions": 0,
+      "unknown": 0
+    },
+    {
+      "threshold": 0.55,
+      "total": 1026,
+      "coverage": 0.9970760233918129,
+      "accuracy_on_known": 0.9970674486803519,
+      "precision": 0.9960732984293194,
+      "recall": 1.0,
+      "f1": 0.9980327868852459,
+      "true_positive": 761,
+      "false_positive": 3,
+      "false_negative_including_abstentions": 0,
+      "unknown": 3
+    },
+    {
+      "threshold": 0.6,
+      "total": 1026,
+      "coverage": 0.9912280701754386,
+      "accuracy_on_known": 0.9980334316617503,
+      "precision": 0.9973753280839895,
+      "recall": 0.9986859395532195,
+      "f1": 0.9980302035456337,
+      "true_positive": 760,
+      "false_positive": 2,
+      "false_negative_including_abstentions": 1,
+      "unknown": 9
+    },
+    {
+      "threshold": 0.65,
+      "total": 1026,
+      "coverage": 0.9775828460038987,
+      "accuracy_on_known": 0.9990029910269193,
+      "precision": 0.9986807387862797,
+      "recall": 0.9947437582128777,
+      "f1": 0.9967083607636603,
+      "true_positive": 757,
+      "false_positive": 1,
+      "false_negative_including_abstentions": 4,
+      "unknown": 23
+    },
+    {
+      "threshold": 0.7,
+      "total": 1026,
+      "coverage": 0.9512670565302144,
+      "accuracy_on_known": 1.0,
+      "precision": 1.0,
+      "recall": 0.9842312746386334,
+      "f1": 0.9920529801324502,
+      "true_positive": 749,
+      "false_positive": 0,
+      "false_negative_including_abstentions": 12,
+      "unknown": 50
+    },
+    {
+      "threshold": 0.75,
+      "total": 1026,
+      "coverage": 0.9161793372319688,
+      "accuracy_on_known": 1.0,
+      "precision": 1.0,
+      "recall": 0.9750328515111695,
+      "f1": 0.9873586161011311,
+      "true_positive": 742,
+      "false_positive": 0,
+      "false_negative_including_abstentions": 19,
+      "unknown": 86
+    },
+    {
+      "threshold": 0.8,
+      "total": 1026,
+      "coverage": 0.8674463937621832,
+      "accuracy_on_known": 1.0,
+      "precision": 1.0,
+      "recall": 0.9671484888304862,
+      "f1": 0.9832999331997329,
+      "true_positive": 736,
+      "false_positive": 0,
+      "false_negative_including_abstentions": 25,
+      "unknown": 136
+    },
+    {
+      "threshold": 0.85,
+      "total": 1026,
+      "coverage": 0.8216374269005848,
+      "accuracy_on_known": 1.0,
+      "precision": 1.0,
+      "recall": 0.9632063074901446,
+      "f1": 0.9812583668005356,
+      "true_positive": 733,
+      "false_positive": 0,
+      "false_negative_including_abstentions": 28,
+      "unknown": 183
+    },
+    {
+      "threshold": 0.9,
+      "total": 1026,
+      "coverage": 0.7875243664717348,
+      "accuracy_on_known": 1.0,
+      "precision": 1.0,
+      "recall": 0.9566360052562418,
+      "f1": 0.9778374748153124,
+      "true_positive": 728,
+      "false_positive": 0,
+      "false_negative_including_abstentions": 33,
+      "unknown": 218
+    }
+  ],
+  "validation": {
+    "total": 1026,
+    "coverage": 0.9512670565302144,
+    "accuracy_on_known": 1.0,
+    "precision": 1.0,
+    "recall": 0.9842312746386334,
+    "f1": 0.9920529801324502,
+    "true_positive": 749,
+    "false_positive": 0,
+    "false_negative_including_abstentions": 12,
+    "unknown": 50
+  },
+  "validation_seconds": 1.438,
+  "test": {
+    "total": 1080,
+    "coverage": 0.8944444444444445,
+    "accuracy_on_known": 0.9886128364389234,
+    "precision": 0.9907894736842106,
+    "recall": 0.9296296296296296,
+    "f1": 0.959235668789809,
+    "true_positive": 753,
+    "false_positive": 7,
+    "false_negative_including_abstentions": 57,
+    "unknown": 114
+  },
+  "test_seconds": 1.687,
+  "comparisons": {
+    "yolo11n": {
+      "confidence": 0.25,
+      "imgsz": 960,
+      "model_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+      "report": {
+        "total": 1026,
+        "coverage": 1.0,
+        "accuracy_on_known": 0.9688109161793372,
+        "precision": 1.0,
+        "recall": 0.9579500657030223,
+        "f1": 0.9785234899328858,
+        "true_positive": 729,
+        "false_positive": 0,
+        "false_negative_including_abstentions": 32,
+        "unknown": 0
+      },
+      "seconds": 5.016
+    },
+    "yolo11s": {
+      "confidence": 0.25,
+      "imgsz": 960,
+      "model_sha256": "85a76fe86dd8afe384648546b56a7a78580c7cb7b404fc595f97969322d502d5",
+      "report": {
+        "total": 1026,
+        "coverage": 1.0,
+        "accuracy_on_known": 0.8499025341130604,
+        "precision": 1.0,
+        "recall": 0.797634691195795,
+        "f1": 0.8874269005847953,
+        "true_positive": 607,
+        "false_positive": 0,
+        "false_negative_including_abstentions": 154,
+        "unknown": 0
+      },
+      "seconds": 4.0
+    }
+  }
+}
