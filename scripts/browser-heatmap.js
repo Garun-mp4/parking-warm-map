@@ -7,19 +7,25 @@ async (page) => {
   await page.setViewportSize({width:1440,height:1080})
   await page.goto('http://127.0.0.1:8765')
   await page.locator('.heatmap-layer[data-ready="true"]').waitFor()
+  check(await page.getByLabel('Непрозрачность карты',{exact:true}).inputValue()==='0.85','Shared default opacity mismatch')
   await page.evaluate(() => document.fonts.ready)
   check(await page.locator('.parking-overlay').count() === 0, 'Old polygon heatmap is still visible')
   const initial = await (await page.request.get('http://127.0.0.1:8765/api/projects/cnrpark-day')).json()
   const values = await page.locator('.thermal-canvas').evaluate(c => {
     const pixels=c.getContext('2d').getImageData(0,0,c.width,c.height).data
-    let hot=0,cold=0
+    let hot=0,cold=0,solid=0,support=0
     for(let i=0;i<pixels.length;i+=4) if(pixels[i+3]>80) {
+      support++
+      if(pixels[i+3]>=230) solid++
       if(pixels[i]>pixels[i+2]+50) hot++
       if(pixels[i+2]>pixels[i]+40) cold++
     }
-    return {hot,cold}
+    return {hot,cold,solidFraction:solid/support}
   })
   check(values.hot>100 && values.cold>100,'Real thermal field lacks expected hot/cold data')
+  check(values.solidFraction>.55,'Color core is too small or washed out')
+  const legendColors = await page.locator('.heat-scale').evaluate(el => [...el.style.background.matchAll(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/g)].map(m=>m.slice(1).map(Number)))
+  check(legendColors.length===101,'Legend must use the full hue-preserving ramp')
   await page.getByLabel('Позиция видео',{exact:true}).fill('18')
   await page.waitForFunction(() => !document.querySelector('video').seeking)
   check(await page.locator('.playback-time').textContent()==='11:58','Source timestamp mismatch')
@@ -33,7 +39,7 @@ async (page) => {
   await page.getByLabel('Непрозрачность карты',{exact:true}).fill('0')
   check(await page.locator('.thermal-canvas').evaluate(c=>getComputedStyle(c).opacity)==='0','Opacity slider failed')
   check(await page.locator('.heat-tooltip-value').textContent()===Math.round(actual.occupancy)+'%','Opacity changed values')
-  await page.getByLabel('Непрозрачность карты',{exact:true}).fill('0.6')
+  await page.getByLabel('Непрозрачность карты',{exact:true}).fill('0.85')
   await slot.focus()
   await page.keyboard.press('ArrowRight')
   check(await page.locator('.heat-tooltip > strong').textContent()==='Место 614','Map arrow navigation failed')
@@ -41,7 +47,7 @@ async (page) => {
   check(await page.locator('.heat-tooltip').count()===0,'Escape did not dismiss card')
   await page.getByLabel('Палитра карты',{exact:true}).selectOption('warm')
   await page.locator('.heatmap-layer[data-ready="true"]').waitFor()
-  check(await page.locator('.heat-scale').evaluate(el=>getComputedStyle(el).background).then(s=>s.includes('255, 243, 189')),'Legend is not using shared warm palette')
+  check(await page.locator('.heat-scale').evaluate(el=>getComputedStyle(el).background).then(s=>s.includes('255, 242, 163')),'Legend is not using shared warm palette')
   await page.getByLabel('Палитра карты',{exact:true}).selectOption('thermal')
   await page.locator('.heatmap-layer[data-ready="true"]').waitFor()
   await page.getByLabel('Конец интервала',{exact:true}).fill('9180')
@@ -85,6 +91,7 @@ async (page) => {
   await slot.click()
   await page.evaluate(()=>window.scrollTo(0,0))
   await page.screenshot({path:'artifacts/thermal-desktop.png',fullPage:true})
+  await page.locator('.video-column').screenshot({path:'artifacts/thermal-map.png'})
   await page.setViewportSize({width:390,height:844})
   await page.waitForFunction(() => document.documentElement.scrollWidth <= innerWidth)
   check(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Mobile page overflow')
@@ -105,5 +112,5 @@ async (page) => {
   const final=await(await page.request.get('http://127.0.0.1:8765/api/projects/cnrpark-day')).json()
   check(final.latest_run.id===initial.latest_run.id,'Visual controls reran the model')
   check(errors.length===0,errors.join(';'))
-  return {passed:true,values,alignment,mobile,browserErrors:errors,scenarios:['real smooth field','opacity preserves measurements','palette and legend','card and keyboard','source clock','time interval','PNG/CSV/MP4','fullscreen','state overlay','editor','matrix','handled retry','mobile','reduced motion']}
+  return {passed:true,values,legendColors,alignment,mobile,browserErrors:errors,scenarios:['broad saturated field','opacity preserves measurements','hue-preserving palette and legend','card and keyboard','source clock','time interval','PNG/CSV/MP4','fullscreen','state overlay','editor','matrix','handled retry','mobile','reduced motion']}
 }

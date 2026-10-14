@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from . import store
 from .analytics import summary
 from .config import DATA, ROOT, MODELS
+from .heatmap import RENDER
 from .schemas import Layout, Settings
 from .video import normalize
 
@@ -270,7 +271,7 @@ def export(
     start: float = Query(0, ge=0, allow_inf_nan=False),
     end: float | None = Query(None, ge=0, allow_inf_nan=False),
     palette: Literal["thermal", "warm"] = "thermal",
-    opacity: float = Query(0.6, ge=0, le=1, allow_inf_nan=False),
+    opacity: float = Query(RENDER["defaultOpacity"], ge=0, le=1, allow_inf_nan=False),
     video_seconds: float = Query(0, ge=0, allow_inf_nan=False),
     mode: Literal["heatmap", "states"] = "heatmap",
 ):

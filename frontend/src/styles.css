@@ -1854,7 +1854,7 @@ footer > span:last-child {
   font-variant-numeric: tabular-nums;
 }
 .video-plane.with-heatmap > video {
-  filter: saturate(0.45);
+  filter: saturate(var(--heatmap-video-saturation));
 }
 .frame-time-chip {
   position: absolute;

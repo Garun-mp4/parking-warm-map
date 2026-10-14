@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from .analytics import summary
-from .heatmap import SPEC, color, composite, layer
+from .heatmap import SPEC, RENDER, color, composite, layer
 from .config import ROOT, FFMPEG
 
 VIDEO_LOCK = Lock()
@@ -133,7 +133,15 @@ def capture(metadata, video_seconds):
         cap.release()
 
 
-def png(result, metadata, start, end, palette="thermal", opacity=0.6, video_seconds=0):
+def png(
+    result,
+    metadata,
+    start,
+    end,
+    palette="thermal",
+    opacity=RENDER["defaultOpacity"],
+    video_seconds=0,
+):
     data = summary(result, start, end)
     frame = capture(metadata, video_seconds)
     frame = composite(
@@ -194,7 +202,7 @@ def video_export(
     start=0,
     end=None,
     palette="thermal",
-    opacity=0.6,
+    opacity=RENDER["defaultOpacity"],
     mode="heatmap",
 ):
     end = result["source_duration_seconds"] if end is None else end

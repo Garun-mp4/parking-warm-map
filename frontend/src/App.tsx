@@ -44,7 +44,12 @@ import {
 } from "./utils";
 import UploadDialog from "./UploadDialog";
 import HeatmapLayer from "./HeatmapLayer";
-import { heatGradient, heatmapVersion, palettes } from "./heatmap";
+import {
+  heatGradient,
+  heatmapVersion,
+  heatmapRender,
+  palettes,
+} from "./heatmap";
 import type { HeatPalette } from "./heatmap";
 
 const initialSettings: Settings = {
@@ -69,7 +74,7 @@ export default function App() {
   );
   const [mode, setMode] = useState<"video" | "states" | "heatmap">("heatmap");
   const [palette, setPalette] = useState<HeatPalette>("thermal");
-  const [heatOpacity, setHeatOpacity] = useState(0.6);
+  const [heatOpacity, setHeatOpacity] = useState(heatmapRender.defaultOpacity);
   const [upload, setUpload] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
@@ -748,8 +753,13 @@ export default function App() {
                     style={
                       {
                         "--media-ratio": meta!.width / meta!.height,
+                        "--heatmap-video-saturation":
+                          heatmapRender.videoSaturation,
                         aspectRatio: `${meta!.width}/${meta!.height}`,
-                      } as CSSProperties & { "--media-ratio": number }
+                      } as CSSProperties & {
+                        "--media-ratio": number;
+                        "--heatmap-video-saturation": number;
+                      }
                     }
                   >
                     {view === "editor" ? (

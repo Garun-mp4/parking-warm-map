@@ -25,17 +25,17 @@ colors:
   semantic-success: "#1ea64a"
   overlay-scrim: "#000000"
 
-  # Quantitative data only; mirrored from shared/heatmap.json version 3.
-  data-thermal-0: "#204fdb"
-  data-thermal-25: "#16c6df"
-  data-thermal-50: "#ffe666"
-  data-thermal-75: "#ff9645"
-  data-thermal-100: "#ed2344"
-  data-warm-0: "#fff3bd"
-  data-warm-25: "#ffd16a"
-  data-warm-50: "#f79647"
-  data-warm-75: "#df4d37"
-  data-warm-100: "#a51d2d"
+  # Quantitative data only; mirrored from shared/heatmap.json version 5.
+  data-thermal-0: "#1853eb"
+  data-thermal-25: "#00c2ff"
+  data-thermal-50: "#ffe000"
+  data-thermal-75: "#ff7200"
+  data-thermal-100: "#f02323"
+  data-warm-0: "#fff2a3"
+  data-warm-25: "#ffcf3f"
+  data-warm-50: "#ff8f10"
+  data-warm-75: "#ef4619"
+  data-warm-100: "#c41c1c"
 
 typography:
   display-xl:
@@ -376,7 +376,7 @@ The smooth field expresses parking occupancy over a selected period. It is a dat
 
 ### Quantitative data extension
 
-Data colors are scoped to the heatmap, quantitative legend, and matching data marks. The brand-accent restrictions continue to govern the shell; the explicitly approved data colors are the scoped exception. `shared/heatmap.json` (version 3) is the runtime source for both Python and React. Frontmatter values mirror that file and must be refreshed from it rather than edited independently.
+Data colors are scoped to the heatmap, quantitative legend, and matching data marks. The brand-accent restrictions continue to govern the shell; the explicitly approved data colors are the scoped exception. `shared/heatmap.json` (version 5) is the runtime source for both Python and React. Frontmatter values mirror that file and must be refreshed from it rather than edited independently.
 
 | Role | 0% | 25% | 50% | 75% | 100% |
 |---|---|---|---|---|---|
@@ -592,9 +592,10 @@ The defining surface of Figma's marketing. Each is a full-content-width panel wi
 
 ### Occupancy heatmap (approved data extension)
 
-- **Field and legend:** the field and five-stop legend use the same selected palette from `shared/heatmap.json`. The default is thermal; warm is an explicit alternative. Smooth blending depicts a normalized weighted mean of known place occupancies, never a sum of overlaps. This is visual interpolation of place measurements, not additional pixel-level observations or temperature.
+- **Color mechanics:** Gaussian weights interpolate numeric occupancy only. A separate geometric mask gives each place a broad constant-strength core and smoothstep feather; masks combine by maximum, so overlaps do not increase opacity. The HSV ramp preserves hue and saturation between anchors (0.1 percentage-point color lookup); the legend samples the same ramp. The video retains 10% saturation. Geometry, background saturation, ramp resolution, and default opacity are shared in `shared/heatmap.json`; exports scale premultiplied alpha to avoid colored fringes.
+- **Field and legend:** the field and hue-preserving legend use the same five palette anchors from `shared/heatmap.json`. The default is thermal; warm is an explicit alternative. Smooth blending depicts a normalized weighted mean of known place occupancies, never a sum of overlaps. This is visual interpolation of place measurements, not additional pixel-level observations or temperature.
 - **Meaning:** occupancy is occupied time divided by occupied plus free time among known intervals. Coverage is the separately displayed fraction with known state. Unknown-only places are hatched and excluded from the colored field. Frame time and map period are labeled separately in real observation time; the example's 10 h 12 min must not be confused with its 42-second video.
-- **Controls:** palette selection, opacity, and fullscreen use monochrome shell controls. Opacity starts at 60% and is adjustable from 0–100%; it changes visibility, not numbers or analysis. Mobile fullscreen uses `{components.heatmap-fullscreen-mobile}`.
+- **Controls:** palette selection, opacity, and fullscreen use monochrome shell controls. Opacity starts at 85% and is adjustable from 0–100%; it changes visibility, not numbers or analysis. Mobile fullscreen uses `{components.heatmap-fullscreen-mobile}`.
 - **Exact-value card:** `{components.heatmap-tooltip}` is an optional white, hairline-bounded card showing a place's exact percentage and separate coverage. Mouse hover or keyboard focus reveals it; touch, Enter, or Space pins selection. The mobile variant is `{components.heatmap-tooltip-mobile}`. Low coverage has a written caution. Unknown data is described in words as well as hatching.
 - **Keyboard:** one map target enters the tab order; arrows move between places, Enter/Space pin selection, and Escape dismisses. A black/white circular focus ring remains visible against the field. Ordinary controls retain the existing 2px visible focus outline and 4px offset.
 - **Loading/error:** hide an obsolete field while the result, period, or palette changes. Announce loading with status text. A field-load failure shows an alert and retry action; never leave an old field over newly selected data. Motion remains restrained and respects the existing reduced-motion preference.
