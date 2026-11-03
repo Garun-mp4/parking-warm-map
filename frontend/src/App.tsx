@@ -427,6 +427,10 @@ export default function App() {
     ]);
   }
   function undoLayout() {
+    if (drawing && draft.length) {
+      setDraft(draft.slice(0, -1));
+      return;
+    }
     if (!history.length) return;
     const previous = history[history.length - 1];
     setSlots(previous.slots);
@@ -446,12 +450,25 @@ export default function App() {
       void stage.current?.requestFullscreen().catch(showError);
     }
   }
-  function svgPoint(event: React.PointerEvent | React.MouseEvent): Point {
-    const box = svg.current!.getBoundingClientRect();
-    return [
-      Math.max(0, Math.min(1, (event.clientX - box.left) / box.width)),
-      Math.max(0, Math.min(1, (event.clientY - box.top) / box.height)),
-    ];
+  function svgPoint(
+    event: React.PointerEvent | React.MouseEvent,
+    clamp = false,
+  ): Point | null {
+    const element = svg.current!;
+    const box = element.getBoundingClientRect();
+    const { width, height } = element.viewBox.baseVal;
+    const scale = Math.min(box.width / width, box.height / height);
+    if (!scale) return null;
+    const renderedWidth = width * scale;
+    const renderedHeight = height * scale;
+    const x =
+      (event.clientX - box.left - (box.width - renderedWidth) / 2) /
+      renderedWidth;
+    const y =
+      (event.clientY - box.top - (box.height - renderedHeight) / 2) /
+      renderedHeight;
+    if (!clamp && (x < 0 || x > 1 || y < 0 || y > 1)) return null;
+    return [Math.max(0, Math.min(1, x)), Math.max(0, Math.min(1, y))];
   }
   function finishPolygon() {
     if (draft.length < 3) return;
@@ -552,7 +569,7 @@ export default function App() {
               <span className={`save-state ${dirty ? "unsaved" : ""}`} role="status">
                 {busy === "layout" ? "Сохраняем…" : dirty ? "Есть изменения" : "Сохранено"}
               </span>
-              <button className="icon-button" disabled={!history.length} aria-label="Отменить изменение · Ctrl+Z" title="Отменить · Ctrl+Z" onClick={undoLayout}>
+              <button className="icon-button" disabled={!history.length && !(drawing && draft.length)} aria-label="Отменить изменение · Ctrl+Z" title="Отменить · Ctrl+Z" onClick={undoLayout}>
                 <RotateCcw size={17} />
               </button>
               <button className="icon-button" disabled={!selected} aria-label="Удалить выбранное место · Delete" title="Удалить · Delete" onClick={removeSlot}>
@@ -954,13 +971,16 @@ export default function App() {
                         className="parking-overlay"
                         viewBox={`0 0 ${meta!.width} ${meta!.height}`}
                         onClick={(event) => {
-                          if (drawing && draft.length < 16)
-                            setDraft([...draft, svgPoint(event)]);
+                          if (drawing && draft.length < 16) {
+                            const point = svgPoint(event);
+                            if (point) setDraft([...draft, point]);
+                          }
                         }}
                         onPointerMove={(event) => {
                           const drag = dragging.current;
                           if (!drag) return;
-                          const point = svgPoint(event);
+                          const point = svgPoint(event, true);
+                          if (!point) return;
                           setSlots((current) =>
                             current.map((slot) =>
                               slot.id === drag.slot
