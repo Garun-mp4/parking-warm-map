@@ -4,6 +4,7 @@ import {
   ArrowDownToLine,
   ArrowRight,
   Check,
+  ChevronLeft,
   ChevronDown,
   CircleHelp,
   Expand,
@@ -13,6 +14,9 @@ import {
   Play,
   Plus,
   RotateCcw,
+  Save,
+  SkipBack,
+  SkipForward,
   Trash2,
   Upload,
   X,
@@ -417,6 +421,24 @@ export default function App() {
   function remember() {
     setHistory((previous) => [...previous.slice(-19), structuredClone(slots)]);
   }
+  function undoLayout() {
+    if (!history.length) return;
+    setSlots(history[history.length - 1]);
+    setHistory(history.slice(0, -1));
+  }
+  function stepFrame(direction: -1 | 1) {
+    const frameDuration = 1 / 15;
+    const current = video.current?.currentTime ?? seconds;
+    const target = Math.round(current / frameDuration + direction) * frameDuration;
+    seek(Math.max(0, Math.min(meta?.video_duration_seconds || target, target)));
+  }
+  function toggleStageFullscreen() {
+    if (document.fullscreenElement === stage.current) {
+      void document.exitFullscreen().catch(showError);
+    } else {
+      void stage.current?.requestFullscreen().catch(showError);
+    }
+  }
   function svgPoint(event: React.PointerEvent | React.MouseEvent): Point {
     const box = svg.current!.getBoundingClientRect();
     return [
@@ -436,17 +458,73 @@ export default function App() {
     setDrawing(false);
   }
   function removeSlot() {
+    if (!selected) return;
     remember();
     setSlots(slots.filter((slot) => slot.id !== selected));
     setSelected(null);
   }
+  const editorCommands = useRef({ saveLayout, undoLayout, removeSlot, togglePlay, seek, stepFrame, toggleStageFullscreen });
+  useEffect(() => {
+    editorCommands.current = { saveLayout, undoLayout, removeSlot, togglePlay, seek, stepFrame, toggleStageFullscreen };
+  });
+
+  useEffect(() => {
+    if (view !== "editor") return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      const target = event.target;
+      const tag = target instanceof HTMLElement ? target.tagName : "";
+      const typing =
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "SELECT" ||
+        (target instanceof HTMLElement && target.isContentEditable);
+      const command = event.ctrlKey || event.metaKey;
+
+      if (command && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        if (dirty && !busy) void editorCommands.current.saveLayout();
+        return;
+      }
+      if (typing) return;
+      if (command && event.key.toLowerCase() === "z") {
+        event.preventDefault();
+        editorCommands.current.undoLayout();
+      } else if (!command && (event.key === "Delete" || event.key === "Backspace")) {
+        if (selected) {
+          event.preventDefault();
+          editorCommands.current.removeSlot();
+        }
+      } else if (event.code === "Space" && tag !== "BUTTON") {
+        event.preventDefault();
+        void editorCommands.current.togglePlay();
+      } else if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+        if (tag === "INPUT" && (target as HTMLInputElement).type === "range") return;
+        event.preventDefault();
+        const direction = event.key === "ArrowLeft" ? -1 : 1;
+        if (event.shiftKey) editorCommands.current.seek(Math.max(0, Math.min(meta!.video_duration_seconds, seconds + direction)));
+        else editorCommands.current.stepFrame(direction);
+      } else if (event.key === "Escape") {
+        if (drawing || draft.length) {
+          setDrawing(false);
+          setDraft([]);
+        } else {
+          setSelected(null);
+        }
+      } else if (event.key.toLowerCase() === "f" && tag !== "BUTTON") {
+        event.preventDefault();
+        editorCommands.current.toggleStageFullscreen();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [view, dirty, busy, history, selected, drawing, draft.length, seconds, meta]);
 
   return (
     <>
       <a className="skip-link" href="#main-content">
         Перейти к содержимому
       </a>
-      <header className="top-nav">
+      <header className={`top-nav ${view === "editor" ? "annotation-nav" : ""}`}>
         <a className="wordmark" href="/" aria-label="Парковка — главная">
           <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
             <rect width="32" height="32" rx="8" fill="black" />
@@ -459,37 +537,56 @@ export default function App() {
           </svg>
           парковка<span className="wordmark-dot">.</span>
         </a>
-        <nav aria-label="Разделы приложения">
-          {(["analysis", "editor", "method"] as const).map((tab, i) => (
-            <button
-              key={tab}
-              className={view === tab ? "nav-tab selected" : "nav-tab"}
-              aria-current={view === tab ? "page" : undefined}
-              onClick={() => changeView(tab)}
-              disabled={(!project && tab === "editor") || busy === "layout"}
-            >
-              {["Обзор", "Разметка", "Методика"][i]}
+        {view === "editor" ? (
+          <>
+            <div className="annotation-project">
+              <button className="button small secondary" onClick={() => changeView("analysis")}>
+                <ChevronLeft size={17} /> Обзор
+              </button>
+              <label htmlFor="editor-project">Разметка видео</label>
+              <select
+                id="editor-project"
+                value={project?.id || ""}
+                onChange={(event) => void chooseProject(event.target.value)}
+                disabled={!!busy}
+              >
+                {projects.map((p) => <option value={p.id} key={p.id}>{p.title}</option>)}
+              </select>
+            </div>
+            <div className="annotation-actions">
+              <span className={`save-state ${dirty ? "unsaved" : ""}`} role="status">
+                {busy === "layout" ? "Сохраняем…" : dirty ? "Есть изменения" : "Сохранено"}
+              </span>
+              <button className="icon-button" disabled={!history.length} aria-label="Отменить изменение · Ctrl+Z" title="Отменить · Ctrl+Z" onClick={undoLayout}>
+                <RotateCcw size={17} />
+              </button>
+              <button className="icon-button" disabled={!selected} aria-label="Удалить выбранное место · Delete" title="Удалить · Delete" onClick={removeSlot}>
+                <Trash2 size={17} />
+              </button>
+              <button className="button primary small" disabled={!dirty || !!busy} onClick={() => void saveLayout()}>
+                <Save size={16} /> {dirty ? "Сохранить" : "Сохранено"} <kbd>Ctrl S</kbd>
+              </button>
+            </div>
+          </>
+        ) : (
+          <>
+            <nav aria-label="Разделы приложения">
+              {(["analysis", "editor", "method"] as const).map((tab, i) => (
+                <button key={tab} className={view === tab ? "nav-tab selected" : "nav-tab"} aria-current={view === tab ? "page" : undefined} onClick={() => changeView(tab)} disabled={(!project && tab === "editor") || busy === "layout"}>
+                  {["Обзор", "Разметка", "Методика"][i]}
+                </button>
+              ))}
+            </nav>
+            <button className="button primary nav-upload" onClick={() => {
+              if ((dirty || draft.length) && !window.confirm("После загрузки нового видео несохранённая разметка будет отменена. Продолжить?")) return;
+              setUpload(true);
+            }}>
+              <Plus size={18} /> Новое видео
             </button>
-          ))}
-        </nav>
-        <button
-          className="button primary nav-upload"
-          onClick={() => {
-            if (
-              (dirty || draft.length) &&
-              !window.confirm(
-                "После загрузки нового видео несохранённая разметка будет отменена. Продолжить?",
-              )
-            )
-              return;
-            setUpload(true);
-          }}
-        >
-          <Plus size={18} />
-          Новое видео
-        </button>
+          </>
+        )}
       </header>
-      <main id="main-content" tabIndex={-1}>
+      <main id="main-content" tabIndex={-1} className={view === "editor" ? "annotation-main" : ""}>
         {(dirty || draft.length > 0) && view !== "editor" && (
           <div className="draft-notice" role="status">
             <span>В редакторе есть несохранённая разметка.</span>
@@ -701,45 +798,13 @@ export default function App() {
               </div>
             </section>
             <section
-              className={`workspace ${view === "analysis" && result ? "analysis-workspace" : ""}`}
+              className={`workspace ${view === "analysis" && result ? "analysis-workspace" : ""} ${view === "editor" ? "annotation-workspace" : ""}`}
             >
               <div className="video-column">
                 <div className="video-toolbar">
                   {view === "editor" ? (
                     <>
-                      <span className="toolbar-title">{slots.length} мест</span>
-                      <div className="toolbar-actions">
-                        <button
-                          className="button small secondary"
-                          onClick={() => {
-                            setDrawing(true);
-                            setDraft([]);
-                            setSelected(null);
-                          }}
-                        >
-                          <Plus size={15} />
-                          Добавить
-                        </button>
-                        <button
-                          className="icon-button"
-                          disabled={!history.length}
-                          aria-label="Отменить изменение"
-                          onClick={() => {
-                            setSlots(history[history.length - 1]);
-                            setHistory(history.slice(0, -1));
-                          }}
-                        >
-                          <RotateCcw size={17} />
-                        </button>
-                        <button
-                          className="icon-button"
-                          disabled={!selected}
-                          aria-label="Удалить выбранное место"
-                          onClick={removeSlot}
-                        >
-                          <Trash2 size={17} />
-                        </button>
-                      </div>
+                      <span className="toolbar-title">Разметка парковки <span>· {slots.length} мест</span></span>
                     </>
                   ) : (
                     <>
@@ -852,28 +917,19 @@ export default function App() {
                       }
                     }
                   >
-                    {view === "editor" ? (
-                      <img
-                        src={`/api/projects/${project.id}/poster`}
-                        alt="Кадр парковки для разметки"
-                      />
-                    ) : (
-                      <video
-                        ref={video}
-                        key={project.id}
-                        src={`/api/projects/${project.id}/video`}
-                        poster={`/api/projects/${project.id}/poster?first=true`}
-                        playsInline
-                        preload="metadata"
-                        onTimeUpdate={(event) =>
-                          setSeconds(event.currentTarget.currentTime)
-                        }
-                        onPlay={() => setPlaying(true)}
-                        onPause={() => setPlaying(false)}
-                        onEnded={() => setPlaying(false)}
-                        aria-label="Видео парковки"
-                      />
-                    )}
+                    <video
+                      ref={video}
+                      key={project.id}
+                      src={`/api/projects/${project.id}/video`}
+                      poster={`/api/projects/${project.id}/poster?first=true`}
+                      playsInline
+                      preload="metadata"
+                      onTimeUpdate={(event) => setSeconds(event.currentTarget.currentTime)}
+                      onPlay={() => setPlaying(true)}
+                      onPause={() => setPlaying(false)}
+                      onEnded={() => setPlaying(false)}
+                      aria-label={view === "editor" ? "Видео для разметки" : "Видео парковки"}
+                    />
                     {view === "analysis" && mode === "heatmap" && (
                       <>
                         <span className="frame-time-chip">
@@ -1057,6 +1113,35 @@ export default function App() {
                     )}
                   </div>
                 </div>
+                {view === "editor" && (
+                  <div className="editor-timeline" aria-label="Выбор кадра видео">
+                    <button className="icon-button timeline-play" aria-label={playing ? "Пауза видео · Пробел" : "Воспроизвести видео · Пробел"} title={playing ? "Пауза · Пробел" : "Воспроизвести · Пробел"} onClick={() => void togglePlay()}>
+                      {playing ? <Pause size={18} /> : <Play size={18} />}
+                    </button>
+                    <button className="icon-button frame-step" aria-label="Предыдущий кадр" title="Предыдущий кадр · ←" onClick={() => stepFrame(-1)}>
+                      <SkipBack size={16} />
+                    </button>
+                    <input
+                      aria-label="Кадр видео"
+                      type="range"
+                      min={0}
+                      max={meta!.video_duration_seconds}
+                      step={1 / 150}
+                      value={Math.min(seconds, meta!.video_duration_seconds)}
+                      onChange={(event) => seek(Number(event.target.value))}
+                    />
+                    <button className="icon-button frame-step" aria-label="Следующий кадр" title="Следующий кадр · →" onClick={() => stepFrame(1)}>
+                      <SkipForward size={16} />
+                    </button>
+                    <span className="editor-time">
+                      <strong>{clock(sourceSeconds, meta!.capture_start)}</strong>
+                      <small>{duration(seconds)} / {duration(meta!.video_duration_seconds)}</small>
+                    </span>
+                    <button className="icon-button" aria-label="На весь экран · F" title="На весь экран · F" onClick={toggleStageFullscreen}>
+                      <Expand size={17} />
+                    </button>
+                  </div>
+                )}
                 {view === "editor" ? (
                   <div className="editor-footer">
                     {drawing ? (
@@ -1196,8 +1281,8 @@ export default function App() {
                   />
                 )}
               </div>
-              <aside className="inspector">
-                <div className="observation-panel">
+              <aside className={`inspector ${view === "editor" ? "annotation-inspector" : ""}`}>
+                {view !== "editor" && <div className="observation-panel">
                   <div className="panel-top">
                     <span>Период наблюдения</span>
                     <Layers size={20} />
@@ -1221,44 +1306,45 @@ export default function App() {
                     <span>{displayedSlots.length} парковочных мест</span>
                     <span className="local-tag">Локально</span>
                   </div>
-                </div>
+                </div>}
                 {view === "editor" ? (
                   <div className="configuration">
-                    <h2>Разметка мест</h2>
-                    <p>
-                      Для классификатора выделяйте область, в которой находится
-                      автомобиль. Сохраните изменения перед анализом.
-                    </p>
+                    <div className="annotation-list-heading">
+                      <div>
+                        <h2>Парковочные места</h2>
+                        <span>{slots.length} зон на видео</span>
+                      </div>
+                      <button className="button small secondary" onClick={() => {
+                        setDrawing(true);
+                        setDraft([]);
+                        setSelected(null);
+                        stage.current?.focus();
+                      }}>
+                        <Plus size={15} /> Добавить
+                      </button>
+                    </div>
+                    <p>Кликните по кадру, чтобы поставить вершины зоны. Выберите место в списке для редактирования.</p>
                     {selectedIndex >= 0 && (
-                      <label>
-                        Название места
-                        <input
-                          value={slots[selectedIndex]?.name || ""}
-                          onFocus={remember}
-                          onChange={(event) => {
-                            const name = event.target.value;
-                            setSlots(
-                              slots.map((slot) =>
-                                slot.id === selected ? { ...slot, name } : slot,
-                              ),
-                            );
-                          }}
-                          maxLength={50}
-                        />
-                      </label>
+                      <div className="selected-slot-editor">
+                        <label>
+                          Выбрано · {slots[selectedIndex]?.id}
+                          <input
+                            value={slots[selectedIndex]?.name || ""}
+                            onFocus={remember}
+                            onChange={(event) => {
+                              const name = event.target.value;
+                              setSlots(
+                                slots.map((slot) =>
+                                  slot.id === selected ? { ...slot, name } : slot,
+                                ),
+                              );
+                            }}
+                            maxLength={50}
+                          />
+                        </label>
+                        <button className="text-button delete-place" onClick={removeSlot}><Trash2 size={15} /> Удалить место</button>
+                      </div>
                     )}
-                    <button
-                      className="button primary full"
-                      onClick={() => void saveLayout()}
-                      disabled={!dirty || !!busy}
-                    >
-                      {busy === "layout"
-                        ? "Сохраняем…"
-                        : dirty
-                          ? "Сохранить разметку"
-                          : "Изменения сохранены"}
-                      <Check size={18} />
-                    </button>
                     <div className="slot-list">
                       {slots.map((slot) => (
                         <button
@@ -1270,6 +1356,13 @@ export default function App() {
                           <span>{slot.id}</span>
                         </button>
                       ))}
+                      {slots.length === 0 && <p className="empty-slot-list">Добавьте первую зону, нарисовав контур вокруг парковочного места.</p>}
+                    </div>
+                    <div className="shortcut-help">
+                      <span><kbd>Пробел</kbd> воспроизвести</span>
+                      <span><kbd>←</kbd> <kbd>→</kbd> по кадрам · <kbd>Shift</kbd> + стрелка — 1 сек</span>
+                      <span><kbd>Ctrl</kbd> + <kbd>Z</kbd> отменить · <kbd>Delete</kbd> удалить</span>
+                      <span><kbd>Enter</kbd> завершить контур · <kbd>Esc</kbd> отменить</span>
                     </div>
                   </div>
                 ) : (

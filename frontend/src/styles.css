@@ -2108,6 +2108,356 @@ footer > span:last-child {
   color: #444;
   margin-top: 12px;
 }
+
+/* Focused, full-screen workspace for parking-space annotation. */
+.annotation-nav {
+  width: 100%;
+  max-width: none;
+  height: 68px;
+  padding-inline: 24px;
+  gap: 24px;
+}
+.annotation-project,
+.annotation-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.annotation-project {
+  margin-right: auto;
+}
+.annotation-project > label {
+  margin: 0 0 0 8px;
+  white-space: nowrap;
+  font-size: 13px;
+  color: #555;
+}
+.annotation-project select {
+  width: min(280px, 24vw);
+  margin: 0;
+  border-radius: 999px;
+  min-height: 40px;
+  padding-block: 8px;
+  font-size: 13px;
+}
+.annotation-nav .button.small {
+  min-height: 40px;
+}
+.annotation-actions {
+  gap: 8px;
+}
+.save-state {
+  color: #555;
+  font-size: 12px;
+  white-space: nowrap;
+  margin-right: 4px;
+}
+.save-state.unsaved {
+  color: #a4491f;
+}
+.annotation-actions .button {
+  white-space: nowrap;
+}
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 2px 6px;
+  border: 1px solid #ffffff44;
+  border-radius: 5px;
+  font: 10px "JetBrains Mono", monospace;
+  white-space: nowrap;
+}
+.annotation-main {
+  width: 100%;
+  max-width: none;
+  height: calc(100dvh - 68px);
+  min-height: 0;
+  padding: 12px 16px 14px;
+  overflow: hidden;
+}
+.annotation-main > .page-heading {
+  display: none;
+}
+.annotation-workspace {
+  height: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 304px);
+  align-items: stretch;
+  gap: 16px;
+}
+.annotation-workspace .video-column {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: var(--soft);
+}
+.annotation-workspace .video-toolbar {
+  min-height: 34px;
+  margin: 0 4px 10px;
+  flex: 0 0 auto;
+}
+.annotation-workspace .toolbar-title {
+  font-size: 13px;
+}
+.annotation-workspace .toolbar-title span {
+  color: #666;
+}
+.annotation-workspace .video-stage {
+  flex: 1 1 auto;
+  min-height: 120px;
+  height: auto;
+  --video-height: 100%;
+  border-radius: 12px;
+  background: #181818;
+}
+.annotation-workspace .video-stage:fullscreen {
+  min-height: 100vh;
+}
+.annotation-workspace .video-plane {
+  max-height: 100%;
+}
+.editor-timeline {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: 40px 36px minmax(80px, 1fr) 36px minmax(112px, auto) 40px;
+  align-items: center;
+  gap: 8px;
+  min-height: 60px;
+  padding: 8px 6px 0;
+}
+.editor-timeline .icon-button {
+  background: #fff;
+  border: 1px solid var(--line);
+}
+.editor-timeline input[type="range"] {
+  accent-color: #000;
+  margin: 0;
+}
+.editor-time {
+  display: grid;
+  justify-items: end;
+  gap: 2px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.editor-time small {
+  color: #6b6b6b;
+  font-size: 10px;
+}
+.annotation-workspace .editor-footer {
+  min-height: 30px;
+  margin: 0;
+  padding: 2px 6px 0;
+  color: #555;
+}
+.annotation-workspace .inspector.annotation-inspector {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 18px 18px 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: #fff;
+}
+.annotation-inspector .configuration {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+.annotation-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.annotation-list-heading h2 {
+  margin: 0 0 3px;
+  font-size: 17px;
+}
+.annotation-list-heading > div > span {
+  color: #6a6a6a;
+  font-size: 11px;
+}
+.annotation-list-heading .button {
+  min-height: 36px;
+  padding: 6px 11px;
+  font-size: 12px;
+}
+.annotation-inspector .configuration > p {
+  margin: 14px 0;
+  color: #585858;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.selected-slot-editor {
+  border-radius: 12px;
+  background: var(--soft);
+  padding: 12px;
+}
+.selected-slot-editor label {
+  font-size: 11px;
+}
+.selected-slot-editor input {
+  min-height: 38px !important;
+  margin: 6px 0 0 !important;
+  padding: 8px 10px !important;
+  font-size: 13px;
+}
+.delete-place {
+  min-height: 28px;
+  margin-top: 4px;
+  color: #83392c;
+  font-size: 11px;
+}
+.annotation-inspector .slot-list {
+  min-height: 0;
+  flex: 1 1 auto;
+  margin: 12px -4px 8px;
+  max-height: none;
+  overflow: auto;
+}
+.annotation-inspector .slot-list > button {
+  min-height: 38px;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.annotation-inspector .slot-list > button.selected {
+  background: var(--lilac);
+  color: #111;
+}
+.empty-slot-list {
+  padding: 12px 8px;
+  color: #666;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.shortcut-help {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: #5b5b5b;
+  font-size: 10px;
+}
+.shortcut-help span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.shortcut-help kbd {
+  min-height: 19px;
+  border-color: var(--line);
+  color: #333;
+  font-size: 9px;
+}
+@media (max-width: 960px) {
+  .annotation-nav {
+    height: auto;
+    min-height: 68px;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+  }
+  .annotation-project {
+    order: 2;
+    flex: 1 1 340px;
+    margin: 0;
+  }
+  .annotation-actions {
+    order: 3;
+    margin-left: auto;
+  }
+  .annotation-main {
+    height: auto;
+    min-height: calc(100dvh - 108px);
+    padding: 12px 16px 20px;
+    overflow: visible;
+  }
+  .annotation-workspace {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .annotation-workspace .video-stage {
+    flex: 0 0 auto;
+    height: min(58dvh, 560px);
+    --video-height: 100%;
+  }
+  .annotation-workspace .inspector.annotation-inspector {
+    min-height: 420px;
+    overflow: visible;
+  }
+  .annotation-inspector .slot-list {
+    flex: initial;
+    max-height: 260px;
+  }
+}
+@media (max-width: 560px) {
+  .annotation-nav {
+    gap: 10px;
+  }
+  .annotation-nav .wordmark {
+    font-size: 18px;
+  }
+  .annotation-nav .wordmark svg {
+    width: 28px;
+    height: 28px;
+  }
+  .annotation-project {
+    flex-basis: 100%;
+    gap: 8px;
+  }
+  .annotation-project > label {
+    display: none;
+  }
+  .annotation-project select {
+    flex: 1;
+    width: auto;
+    min-width: 0;
+  }
+  .annotation-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  .save-state {
+    margin-right: auto;
+  }
+  .annotation-main {
+    padding-inline: 10px;
+  }
+  .annotation-workspace .video-column {
+    padding: 8px;
+  }
+  .editor-timeline {
+    grid-template-columns: 40px 32px minmax(30px, 1fr) 32px 40px;
+    gap: 5px;
+  }
+  .editor-time {
+    grid-column: 1 / 5;
+    grid-row: 2;
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .editor-timeline .icon-button:last-child {
+    grid-column: 5;
+    grid-row: 1;
+  }
+  .annotation-workspace .video-stage {
+    height: min(48dvh, 420px);
+    min-height: 220px;
+  }
+}
 @media (max-width: 1100px) {
   .heat-controls {
     gap: 12px;
