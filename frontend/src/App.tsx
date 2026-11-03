@@ -101,7 +101,9 @@ export default function App() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [draft, setDraft] = useState<Point[]>([]);
   const [drawing, setDrawing] = useState(false);
-  const [history, setHistory] = useState<Slot[][]>([]);
+  const [history, setHistory] = useState<
+    { slots: Slot[]; selected: string | null }[]
+  >([]);
   const dirty = useMemo(
     () => JSON.stringify(slots) !== JSON.stringify(project?.slots || []),
     [slots, project?.slots],
@@ -419,11 +421,16 @@ export default function App() {
     }
   }
   function remember() {
-    setHistory((previous) => [...previous.slice(-19), structuredClone(slots)]);
+    setHistory((previous) => [
+      ...previous.slice(-19),
+      { slots: structuredClone(slots), selected },
+    ]);
   }
   function undoLayout() {
     if (!history.length) return;
-    setSlots(history[history.length - 1]);
+    const previous = history[history.length - 1];
+    setSlots(previous.slots);
+    setSelected(previous.selected);
     setHistory(history.slice(0, -1));
   }
   function stepFrame(direction: -1 | 1) {
@@ -525,18 +532,6 @@ export default function App() {
         Перейти к содержимому
       </a>
       <header className={`top-nav ${view === "editor" ? "annotation-nav" : ""}`}>
-        <a className="wordmark" href="/" aria-label="Парковка — главная">
-          <svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true">
-            <rect width="32" height="32" rx="8" fill="black" />
-            <path
-              d="M10 24V8h7a5 5 0 0 1 0 10h-7m0-5h7"
-              fill="none"
-              stroke="white"
-              strokeWidth="2.5"
-            />
-          </svg>
-          парковка<span className="wordmark-dot">.</span>
-        </a>
         {view === "editor" ? (
           <>
             <div className="annotation-project">
